@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "C:\\Program Files\\Python313\\python.exe",
+            "args": [
+              "-X",
+              "utf8",
+              "${ZCODE_PLUGIN_ROOT}/scripts/permission_allow.py",
+              "--event",
+              "PreToolUse"
+            ],
+            "timeoutMs": 3000,
+            "statusMessage": "ai-steward: 检查是否自动放行"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "C:\\Program Files\\Python313\\python.exe",
+            "args": [
+              "-X",
+              "utf8",
+              "${ZCODE_PLUGIN_ROOT}/scripts/permission_allow.py",
+              "--event",
+              "PermissionRequest"
+            ],
+            "timeoutMs": 3000,
+            "statusMessage": "ai-steward: 自动放行管家会话"
+          }
+        ]
+      }
+    ]
+  }
+}

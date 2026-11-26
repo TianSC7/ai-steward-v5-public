@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>岗位保活设计 · 心跳/判活/拉起/自愈</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;--acc:#4a6fa5;--accbg:#eef3f9;--bad:#c0575c;--ok:#47875c}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1300px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{font-size:12px;color:var(--mut);text-align:right}
+.head a{color:var(--acc);text-decoration:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-top:16px;overflow-x:auto}
+.panel h2{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{color:var(--acc)}
+.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:14px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tc{background:var(--accbg);border:1px solid #cddcee;border-radius:8px;padding:12px 14px}
+.tc .t{font-size:15px;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.tc .t svg{color:var(--acc)}
+.tc .d{font-size:12.5px;color:var(--sub);line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{height:32px;text-align:left;color:var(--mut);border-bottom:1px solid var(--line);font-weight:400;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--sub);vertical-align:top}
+td.mono{font-family:Consolas,monospace;color:var(--ink);white-space:nowrap}
+td.role{color:var(--ink);white-space:nowrap}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.lstep{flex:1;min-width:160px;background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.lstep .t{font-size:14px;color:var(--ink)}
+.lstep .d{font-size:12.5px;color:var(--sub);line-height:1.55}
+.lstep.hot{background:#fbf2f2;border-color:#e6c9cb}
+.arrow{align-self:center;color:var(--dis)}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+@media (max-width:1000px){.trio{grid-template-columns:1fr}}
+</style></head><body>
+<div class="shell">
+
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>岗位保活设计</h1>
+<div class="meta">心跳闹钟 · 稽查判活 · 阶梯拉起 · 闹钟自愈<br><a href="/simple">简版流程</a> · <a href="/plan">预案手册</a> · <a href="/architecture">架构</a></div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>一、保活三件套(缺一不可)</h2>
+<div class="trio">
+<div class="tc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>① 心跳闹钟(自己拉自己)</div><div class="d">每个"管人"的岗位配一条周期性自动化闹钟(target=本席会话,模式 yolo)。到点由平台调度把巡检指令投进会话,本席自动醒来自检、领活、推进——这就是"定闹钟把自己拉起"。</div></div>
+<div class="tc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>② 稽查判活(别人盯着你)</div><div class="d">心跳每跑一次都留 run 记录。稽查组按判据判活:到点没跑=异常;跑了但 interrupted=异常;连续失败 N 次=判离线。不靠感觉,全自动。</div></div>
+<div class="tc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>③ 阶梯拉起(拉不起来就换人)</div><div class="d">自己唤醒失败 → 重投;会话丢了 → 重建同角色新席(继承流转卡);还不行 → 上级代管。任何一档都不问发起人。</div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>二、心跳节拍表(谁定闹钟 · 多快 · 谁判活)</h2>
+<div class="sub">原则:管人的岗位全配闹钟;纯执行岗位不配闹钟、靠派活;闹钟越短越敏感,越长越省额度。</div>
+<table>
+<tr><th style="width:150px">岗位</th><th style="width:120px">心跳节拍</th><th style="width:170px">闹钟内容(每次醒来做什么)</th><th style="width:150px">判活判据</th><th>离线阈值 → 动作</th></tr>
+<tr><td class="role">厂长</td><td class="mono">每 30 分钟</td><td>薄巡检:读 digest → 派单/解阻塞/收交付,回执≤5 行</td><td>每拍 run 且 succeeded;或席位 updated 前移</td><td class="bad">缺 1 拍(30m)→ 备用厂长席接管</td></tr>
+<tr><td class="role">策划经理</td><td class="mono">每 10 分钟</td><td>滚动计划:拉当前计划 → 排工 → 交方案</td><td>每拍 run 且 succeeded</td><td class="bad">缺 2 拍(20m)→ 组长代管 + 启用备用经理</td></tr>
+<tr><td class="role">审计/质检经理</td><td class="mono">每 5–10 分钟</td><td>审队列/验队列:取待办 → 出结论 → 留理由</td><td>每拍 run 且 succeeded</td><td class="bad">缺 2 拍 → 组长接力;队列 >30m 不动 → 经理强制接力</td></tr>
+<tr><td class="role">策划组长</td><td class="mono">每 20 分钟</td><td>组内清点:在制任务进度、卡点上报</td><td>心跳 + 组内节点推进</td><td class="bad">缺 2 拍 → 经理代管本组</td></tr>
+<tr><td class="role">生产/质检组长</td><td class="mono">每 20 分钟</td><td>盯节点:15 分钟无提交即标黄,判卡死重派</td><td>心跳 + 组员进度指针</td><td class="bad">缺 2 拍 → 经理代管;组员卡死 → 组内替补</td></tr>
+<tr><td class="role">员工(执行岗)</td><td class="mono">不配闹钟</td><td>任务驱动:接派活 → 做 → 提交(断点续做)</td><td>节点 15 分钟无"提交"=卡死;会话无响应 30s=离线</td><td class="bad">卡死/离线 → 同组替补接(上限 3 次)→ 组长 → 经理</td></tr>
+<tr><td class="role">运营保障部</td><td class="mono">稽查实时 + 6h 批</td><td>稽查脚本常驻判活;效率批处理每 6h</td><td>脚本自检:心跳缺失/悬挂/额度</td><td class="bad">稽查自己挂 → 脚本兜底(规则写死);经理挂 → 厂长直管</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>三、拉起阶梯(自己醒不了,就按这个顺序换)</h2>
+<div class="ladder">
+<div class="lstep"><div class="t">① 重投唤醒</div><div class="d">再派一次心跳指令(等效再定一个闹钟),断点续做。适合:会话活着但这一拍没醒。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep"><div class="t">② 重建会话</div><div class="d">会话丢失就按同角色重建新席(同工号档位),把流转卡和队列挂回去;闹钟 target 自动改指新席。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep"><div class="t">③ 上级代管</div><div class="d">组长挂→经理代;经理挂→厂长代;厂长挂→备用厂长席接管。在制任务全程不停。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep hot"><div class="t">④ 降级与补偿</div><div class="d">以上都不可行:降级交付 + 挂补偿单,结论写进交付单供你事后核对(不问、不等)。</div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>四、闹钟谁保活?(meta 层:闹钟自愈,每分钟跑)</h2>
+<div class="sub">闹钟本身是数据行,也会失效(被停用、目标会话被归档、next_run 过期、模式被改回 build)。所以再加一层"保闹钟的闹钟":</div>
+<table>
+<tr><th style="width:170px">检查项</th><th style="width:150px">失效表现</th><th>自愈动作(自动化,不问人)</th></tr>
+<tr><td class="mono">enabled=1</td><td class="bad">被停用</td><td>已经在"应启用名单"里的,自动改回 1</td></tr>
+<tr><td class="mono">mode=yolo</td><td class="bad">派发弹权限被卡</td><td>自动回写 yolo(今日根因:派发模式看 automations.mode)</td></tr>
+<tr><td class="mono">target 会话存在且未归档</td><td class="bad">指向死席</td><td>报"目标失效";有备用席的按阶梯②重建并改指</td></tr>
+<tr><td class="mono">next_run_at 未过期</td><td class="bad">停摆不触发</td><td>过期超 2 个节拍 → 自动前拨到 now+60s,补跑一拍</td></tr>
+<tr><td class="mono">调度引擎健康</td><td class="bad">全心跳停</td><td>判"平台级":跑健康检查六项 → 清死占用/悬挂 → 必要时令牌注入重启应用</td></tr>
+</table>
+<div class="sub" style="margin-top:10px">实现:scripts/verify_keepalive.py(四查一拨)+ scripts/verify_permission_yolo.py(六项卫生),由看板守护任务 board_guard 每分钟静默执行——闹钟坏了,一分钟内自愈。</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>五、今天实跑验证过的战例</h2>
+<table>
+<tr><th style="width:90px">时刻</th><th style="width:210px">事件</th><th>处置与结果(全部自动/半自动跑通)</th></tr>
+<tr><td class="mono">15:23→17:12</td><td>调度引擎间歇停摆</td><td>心跳缺失被识别 → 一次性令重投 → 引擎恢复后按点补跑(17:12–17:37 连续 succeeded)</td></tr>
+<tr><td class="mono">19:02→19:23</td><td>会话卡权限弹窗,回合卡死</td><td>源码定位(automations.mode=build)→ 全表改 yolo;应用令牌注入重启 → 19:29/19:32 三心跳 yolo 派发成功</td></tr>
+<tr><td class="mono">19:35</td><td>厂长自建新席(002 策划/003 审计·重启席)+重建心跳</td><td>决策 D-017/018 自记录,新席权限补齐 yolo,验证脚本 7/7 PASS</td></tr>
+</table>
+</div>
+
+<div class="foot">保活 = 心跳(自醒) + 稽查(他醒) + 阶梯(换人) + 自愈(保闹钟) · 全自动 · 不问发起人</div>
+</div>
+</body></html>

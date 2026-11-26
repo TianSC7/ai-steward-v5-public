@@ -1,0 +1,44 @@
+# 运行时与生成物不入库（2026-11-18 用户令：工作区必须可回滚）
+__pycache__/
+*.pyc
+.pytest_cache/
+.video_agent/
+_incoming/
+_trash/
+release/
+logs/
+*.log
+
+# 本地备份与数据库快照（state/ 下有 GB 级 .bak；数据库可由 registry 重建）
+*.bak
+*.bak-*
+*.bak2-*
+state/*.sqlite
+state/*.sqlite-*
+state/tasks-index.sqlite*
+state/.locks/
+
+# 自动生成的只读看板（board_view.py 随时可重建）
+reports/board.html
+
+# M4-A3 事件桥运行时产物（游标/健康/spool 由 watch.py 自行创建，不入库）
+state/newcad_watch_state.json
+state/newcad_bridge_health.json
+state/newcad_events/
+
+# W-20261119-001（证据资产入 git，path-scoped）：state/packages 与 reports/evidence 两目录内
+# 证据文件全量纳入版本库，覆盖上方 *.log / release/ 等通用排除；仅限这两目录，他处排除不变。
+!state/packages/**/Release/
+!state/packages/**
+!reports/evidence/**
+
+state_archive_*/
+
+# 看板暗号不入库（F-001 · ITER-20261120-001 / D-20261120-006 R3 红线防护）
+config/board_token.txt
+
+# 并发账本运行态不入库（C-20261120-003 / D-009 ④；caps 相反——它是配置，入 git）
+# 第三行为坏账旁路副本，精确到 lane_ledger.json 前缀（N4：坏账名 = lane_ledger.json.corrupt-<stamp>）
+state/lane_ledger.json
+state/lane_ledger.jsonl
+state/lane_ledger.json.corrupt-*

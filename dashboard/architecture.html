@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工厂 MES 架构总览 · 定稿</title>
+<style>
+:root{--bg:#f5f5f5;--card:#ffffff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;
+--acc:#4a6fa5;--accbg:#eef3f9;--ok:#47875c;--bad:#c0575c;--warn:#b58a3f}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1280px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{color:var(--mut);font-size:12px;text-align:right}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-top:16px}
+.sec h2{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.sec h2 svg{color:var(--acc);flex:none}
+.sec h2 .tag{margin-left:auto;font-size:12px;color:var(--mut)}
+.note{color:var(--mut);font-size:12px}
+/* 组织树 */
+.org{display:flex;flex-direction:column;align-items:center;gap:0}
+.node{background:var(--accbg);border:1px solid #cddcee;border-radius:6px;padding:8px 16px;text-align:center}
+.node .role{font-size:14px;color:var(--acc)}
+.node .desc{font-size:12px;color:var(--mut)}
+.node.me{background:#fff;border-color:var(--line)}
+.conn{width:1px;height:14px;background:var(--line)}
+.depts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:100%;margin-top:0}
+.dept{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:10px}
+.dept .dname{font-size:14px;color:var(--ink);border-bottom:1px solid var(--line2);padding-bottom:6px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.dept .dname svg{color:var(--acc);flex:none}
+.tier{border:1px solid var(--line2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--sub);margin-top:6px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.tier .t{color:var(--ink)}
+.tier .n{color:var(--mut);font-family:Consolas,monospace}
+.tier.hl{border-color:#cddcee;background:var(--accbg)}
+.gate{font-size:11px;color:var(--bad);border:1px solid #e6c9cb;border-radius:999px;padding:0 8px;background:#fbf2f2}
+/* 流程 */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.step{flex:1;min-width:130px;background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:10px;position:relative}
+.step .k{font-size:12px;color:var(--mut)}
+.step .v{font-size:14px;color:var(--ink);margin-top:2px}
+.arrow{align-self:center;color:var(--dis);flex:none}
+.gatebox{border-color:#cddcee;background:var(--accbg)}
+.loops{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.loop{font-size:12px;color:var(--sub);background:#fbfcfd;border:1px dashed var(--line);border-radius:6px;padding:8px 10px}
+/* 卡片网格 */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.card .ttl{font-size:14px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.card .ttl svg{color:var(--acc);flex:none}
+.card ul{list-style:none}
+.card li{font-size:12.5px;color:var(--sub);padding:2px 0 2px 14px;position:relative}
+.card li::before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;border-radius:999px;background:var(--acc)}
+.card li.bad::before{background:var(--bad)}
+.card li.ok::before{background:var(--ok)}
+/* 表格 */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{height:32px;text-align:left;color:var(--mut);border-bottom:1px solid var(--line);font-weight:400}
+td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--sub);vertical-align:top}
+td.mono{font-family:Consolas,monospace;color:var(--ink);white-space:nowrap}
+/* 建设顺序 */
+.steps{display:flex;flex-wrap:wrap;gap:8px}
+.sn{flex:1;min-width:120px;background:#fbfcfd;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--sub)}
+.sn .no{font-family:Consolas,monospace;color:var(--acc);margin-right:4px}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+@media (max-width:1000px){.depts{grid-template-columns:repeat(2,1fr)}.grid3,.grid2,.loops{grid-template-columns:1fr}}
+</style></head><body>
+<div class="shell">
+
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V8l7-5 7 5v13M10 21v-6h4v6"/><path d="M17 12h4v9"/></svg>工厂 MES 架构总览</h1>
+<div class="meta">AI 流水线工厂 · 组织 / 流程 / 追溯 / 自治规则<br>定稿 · 2026-11-19 · 一需求一工单 · 异常不停线</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><path d="M5 21v-4a7 7 0 0 1 14 0v4"/></svg>一、组织架构(定稿)<span class="tag">三层编制 · 审计/质检独立设闸</span></h2>
+<div class="org">
+<div class="node me"><div class="role">你 · 需求发起人 / 重大发布终审</div><div class="desc">只对接厂长 · 四类闸门才找你</div></div>
+<div class="conn"></div>
+<div class="node"><div class="role">厂长 · 唯一需求入口</div><div class="desc">需求契约 · 拆分确认 · 总调度 · 规则发布 · 最终交付口</div></div>
+<div class="conn"></div>
+<div class="depts">
+<div class="dept"><div class="dname"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H4z"/><path d="M8 20h8"/></svg>策划部</div>
+<div class="tier hl"><span class="t">经理</span><span class="n">1</span></div>
+<div class="tier"><span class="t">计划组长 / 方案组长</span><span class="n">2</span></div>
+<div class="tier"><span class="t">员工</span><span class="n">n</span></div>
+<div class="note" style="margin-top:8px">每小时滚动排产</div></div>
+<div class="dept"><div class="dname"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>审计部 <span class="gate">独立闸</span></div>
+<div class="tier hl"><span class="t">经理</span><span class="n">1</span></div>
+<div class="tier"><span class="t">组长</span><span class="n">1</span></div>
+<div class="tier"><span class="t">员工</span><span class="n">n</span></div>
+<div class="note" style="margin-top:8px">审方案覆盖验收标准</div></div>
+<div class="dept"><div class="dname"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3z"/></svg>生产部</div>
+<div class="tier hl"><span class="t">经理</span><span class="n">1</span></div>
+<div class="tier"><span class="t">组长 × 3组</span><span class="n">3</span></div>
+<div class="tier"><span class="t">员工(每组3)</span><span class="n">9</span></div>
+<div class="note" style="margin-top:8px">按审计通过方案产出</div></div>
+<div class="dept"><div class="dname"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>质检部 <span class="gate">独立闸</span></div>
+<div class="tier hl"><span class="t">经理</span><span class="n">1</span></div>
+<div class="tier"><span class="t">组长</span><span class="n">1</span></div>
+<div class="tier"><span class="t">员工</span><span class="n">n</span></div>
+<div class="note" style="margin-top:8px">逐条按验收标准验</div></div>
+<div class="dept"><div class="dname"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>运营保障部</div>
+<div class="tier hl"><span class="t">经理</span><span class="n">1</span></div>
+<div class="tier"><span class="t">稽查组</span><span class="n">实时</span></div>
+<div class="tier"><span class="t">效率分析组</span><span class="n">6h</span></div>
+<div class="note" style="margin-top:8px">只稽查/分析 · 不判合格</div></div>
+</div>
+</div>
+<div class="note" style="margin-top:12px">规则:每部门必须有经理—组长—员工三层;审计/质检结论部门经理不得压制;需求变更唯一入口=厂长,走变更单。</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>二、主流程(需求到交付)<span class="tag">发布闸为硬闸</span></h2>
+<div class="flow">
+<div class="step"><div class="k">01 · 入口</div><div class="v">你提需求</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">02 · 厂长</div><div class="v">需求契约<br><span class="note">目标/子需求/验收/不做/风险/预算/WIP/截止/路由 · 全部自动确认,不询问发起人</span></div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">03 · 策划</div><div class="v">滚动计划 + 按子需求出方案</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">04 · 审计</div><div class="v">审方案覆盖验收标准</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">05 · 生产</div><div class="v">按通过方案产出</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">06 · 质检</div><div class="v">逐条验验收标准</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step gatebox"><div class="k">07 · 发布闸(硬)</div><div class="v">质检过 + 审计无未闭合 + 稽查无阻断 + 版本冻结 + 回滚方案</div></div>
+<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="k">08 · 厂长</div><div class="v">最终交付单 → 你验收</div></div>
+</div>
+<div class="loops">
+<div class="loop">驳回回路:审计驳回 → 回策划;质检驳回 → 回生产。重试有上限,超限升级厂长,不无限循环。</div>
+<div class="loop">稽查边界:稽查发现异常不直接改产品结论,只做隔离 / 重派 / 补偿。</div>
+<div class="loop">变更单:需求变更唯一入口=厂长,变更留痕进 MD 卡"变更记录"节。</div>
+</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>三、工单与追溯<span class="tag">一需求一工单 · 一工单一个 MD 流转卡</span></h2>
+<div class="grid2">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>秒级留痕(每个节点)</div>
+<ul><li>进入 / 分配 / 开始 / 提交 / 离开</li><li>驳回 / 恢复 / 发布</li><li>MD 只追加不覆盖;变更写"变更记录"节</li><li>同步写结构化字段表,供看板/统计/日报</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>核心指标(每工单)</div>
+<ul><li>处理时长 / 等待时长 / 流转时长</li><li>驳回次数 / 返工次数 / 超时数 / 挂起次数</li><li>额度消耗 / 准时交付率</li></ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>四、异常不停线(写死原则)<span class="tag">只停出问题的点</span></h2>
+<div class="grid2">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>处置顺序</div>
+<ul><li class="bad">1 隔离异常点(子需求/Agent)</li><li>2 重派 / 替补</li><li>3 绕行</li><li>4 降级交付</li><li>5 挂补偿单</li><li>6 记录秒级时间戳</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>父订单状态与发布分批</div>
+<ul><li class="ok">推进中 / 部分可交付 / 有条件交付 / 全部完成</li><li>已通过质检+审计的子需求先进发布候选</li><li>未通过挂"待补偿",不阻塞已通过部分</li><li class="bad">仅不可逆损害硬停:数据破坏 / 越权 / 对外发布安全风险</li></ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h14v18H5z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>五、策划滚动排产 + 运保部双组</h2>
+<div class="grid3">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>小时计划板(三栏)</div>
+<ul><li>当前 1 小时:锁定执行,派工依据(仅阻断异常可改)</li><li>短期 5 小时:每小时滚动,排资源/依赖/借调</li><li>长期 12 小时:产能/额度/瓶颈预判,不承诺</li><li>防抖动:冻结窗口 / 变更阈值 / 依赖优先 / WIP 上限 / 补偿池不占当前计划</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>稽查组(实时/近实时)</div>
+<ul><li>抓:心跳缺失 / 无响应 / 超时 / 挂起</li><li>抓:前台空转 sleep / 长任务不后台化 / 额度空耗 / 无限重试 / 伪等待</li><li>抓:WIP 积压 / 版本冲突</li><li>闭环:发现→告警→中断/隔离→后台化或重派→恢复确认→记录违规→复盘</li><li>黄灯报组长/经理;红灯报厂长+运保部;阻断升级你</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>效率分析组(每 6 小时,每天 4 批)</div>
+<ul><li>前 3 批:快照 + 异常清单 + 指标(不派改善任务)</li><li>第 4 批:完整日报 + Top3 瓶颈 + Top3 驳回 + 最多 3 个改善项 + 昨日改善关闭情况</li><li>改善项必须:责任人 / 截止 / 验证结果</li><li>统计:计划达成率 / 短期命中率 / 长期偏差 / 抖动次数</li></ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3z"/><path d="M4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7"/></svg>六、专属记忆库(四层)与自我迭代</h2>
+<div class="grid2">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>四层结构</div>
+<ul><li>事实层:工单/时间戳/驳回/质检/稽查,结构化表</li><li>经验层:驳回案例/优秀方案/验收模板/异常处置,向量库,标 待验证/已验证/已过期</li><li>规则层:SOP/模板/路由,版本化</li><li>改善层:改善项/责任人/截止/验证结果,闭环跟踪</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>防自我污染规则</div>
+<ul><li>低质量/未验证/被驳回未修复内容不进经验层</li><li>记忆只标过期,不物理删除历史</li><li>多次验证有效才可提案升级为规则</li><li>规则变更:AI 提案 → 厂长审批 → 审计复核,不能自动改</li></ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>七、无人值守与人工闸门<span class="tag">只有四类找你</span></h2>
+<div class="grid2">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>全自动范围</div>
+<ul><li>日常流转 / 派活 / 驳回 / 重派 / 替补</li><li>质检 / 常规发布</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>唯一人工接触点:最终交付单(不询问、只交结果)</div>
+<ul><li class="ok">需求确认/规则升级/发布终审/阻断处置:全部自动,不询问你</li><li class="bad">不可逆风险(数据破坏/越权/对外发布):该项自动搁置不硬做,其余照跑</li><li class="ok">你只看:最终交付单 + 事后核对结论</li></ul></div>
+</div>
+<div class="note" style="margin-top:10px">你每天只看:第 4 批日报、红灯/阻断关闭情况、厂长《最终交付单》。</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12a3 3 0 0 0 3 3h9"/><path d="M18 15l3 3-3 3"/></svg>八、最终交付单(厂长汇总 → 你验收)</h2>
+<table>
+<tr><th style="width:160px">组成部分</th><th>内容</th></tr>
+<tr><td class="mono">订单与目标</td><td>订单号 / 需求目标 / 交付物清单及版本</td></tr>
+<tr><td class="mono">三方结论</td><td>质检结论 / 审计结论 / 稽查结论</td></tr>
+<tr><td class="mono">交付与补偿</td><td>已交付 / 未交付 / 补偿计划</td></tr>
+<tr><td class="mono">风险与回滚</td><td>遗留风险 / 回滚方案 / 厂长交付意见</td></tr>
+<tr><td class="mono">你的验收</td><td>接受 / 有条件接受 / 退回</td></tr>
+</table>
+<div class="note" style="margin-top:8px">发布闸硬条件:本次子需求质检全过 + 审计无未关闭驳回 + 稽查无阻断 + 版本冻结 + 有回滚方案。</div>
+</div>
+
+<div class="sec">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8h4v13M10 21V4h4v17M15 21v-9h4v9"/></svg>九、建设顺序与验收标准</h2>
+<div class="steps">
+<div class="sn"><span class="no">1</span>工单状态机 + MD 模板 + 结构化字段表</div>
+<div class="sn"><span class="no">2</span>组织权限矩阵 + 需求契约 + 交接单</div>
+<div class="sn"><span class="no">3</span>主流程流转 + 驳回 + 变更单</div>
+<div class="sn"><span class="no">4</span>稽查基础规则 + 异常不停线 + 补偿池</div>
+<div class="sn"><span class="no">5</span>策划滚动计划板</div>
+<div class="sn"><span class="no">6</span>6 小时批处理 + 第 4 批日报 + 改善闭环</div>
+<div class="sn"><span class="no">7</span>向量记忆库 + 规则审批</div>
+<div class="sn"><span class="no">8</span>发布闸 + 最终交付单</div>
+<div class="sn"><span class="no">9</span>先 L2 半自治,稳定后 L3 异常驱动自治</div>
+</div>
+<div class="grid2" style="margin-top:12px">
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>验收标准</div>
+<ul><li class="ok">每条需求可追溯到秒级节点耗时</li><li class="ok">异常不阻塞父订单和其他子需求</li><li class="ok">日报自动生成且有改善闭环</li><li class="ok">规则变更必须审批留痕</li><li class="ok">发布有硬闸和回滚方案</li><li class="ok">厂长是唯一交付口</li></ul></div>
+<div class="card"><div class="ttl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>一句话总纲</div>
+<ul><li>按 MES 工单模式搭建:厂长唯一入口,部门三层编制</li><li>一需求一工单,MD 秒级留痕</li><li>异常不停线,策划每小时滚动排产</li><li>运保部实时稽查 + 每 6 小时效率分析 + 向量记忆库迭代</li><li>发布过硬闸,厂长最终交付</li></ul></div>
+</div>
+</div>
+
+<div class="foot">工厂 MES 架构 · 定稿快照 · 全页自包含单文件 · 图标全 SVG</div>
+</div>
+</body></html>

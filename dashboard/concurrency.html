@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>并发设计与日班夜班安排</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;--acc:#4a6fa5;--accbg:#eef3f9;--bad:#c0575c;--ok:#47875c}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1320px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{font-size:12px;color:var(--mut);text-align:right}
+.head a{color:var(--acc);text-decoration:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-top:16px;overflow-x:auto}
+.panel h2{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{color:var(--acc)}
+.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{height:32px;text-align:left;color:var(--mut);border-bottom:1px solid var(--line);font-weight:400;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--sub);vertical-align:top}
+td.mono{font-family:Consolas,monospace;color:var(--ink);white-space:nowrap}
+td.role{color:var(--ink);white-space:nowrap}
+.bad{color:var(--bad)}.ok{color:var(--ok)}
+.shifts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sh{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.sh.night{background:#f3f4f8}
+.sh .t{font-size:15px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh .t svg{color:var(--acc)}
+.sh ul{list-style:none}
+.sh li{font-size:12.5px;color:var(--sub);padding:3px 0 3px 14px;position:relative;line-height:1.6}
+.sh li::before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;border-radius:999px;background:var(--acc)}
+.flowrow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.fs{flex:1;min-width:150px;background:var(--accbg);border:1px solid #cddcee;border-radius:8px;padding:10px 12px}
+.fs .t{font-size:13.5px;color:var(--ink)}
+.fs .d{font-size:12.5px;color:var(--sub);line-height:1.55}
+.arrow{align-self:center;color:var(--dis)}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+@media (max-width:1000px){.shifts{grid-template-columns:1fr}}
+</style></head><body>
+<div class="shell">
+
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>并发设计与日班·夜班安排</h1>
+<div class="meta">并发不是越多越好 · WIP 有上限 · 夜班吃免费额度<br><a href="/v2.html#z14">实时并发数</a> · <a href="/simple">简版流程</a> · <a href="/keepalive">保活</a> · <a href="/plan">预案</a> · <a href="/architecture">架构</a></div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>一、并发四层与 WIP 上限(在制品限制)</h2>
+<div class="sub">并发的单位是"层":订单层并行、部门层并行、席位层串行、平台层限流。每层都有硬上限,超了就排队,不硬塞。</div>
+<table>
+<tr><th style="width:120px">并发层</th><th style="width:150px">并行单位</th><th style="width:130px">上限(日班)</th><th style="width:130px">上限(夜班)</th><th>超限怎么办</th></tr>
+<tr><td class="role">订单层</td><td>同时推进中的父订单</td><td class="mono">≤ 3</td><td class="mono">≤ 5</td><td>第 4 单起排队(queued),不影响在制单</td></tr>
+<tr><td class="role">部门层·生产</td><td>3 组 × 3 员工 = 9 执行位</td><td class="mono">9</td><td class="mono">9</td><td>组内排队;跨组借调需经理批</td></tr>
+<tr><td class="role">部门层·策划</td><td>计划组 + 方案组</td><td class="mono">2</td><td class="mono">2</td><td>方案排队;计划始终优先(计划是派工依据)</td></tr>
+<tr><td class="role">部门层·审计/质检</td><td>各 1 组长 + 员工</td><td class="mono">2 并发审/验位</td><td class="mono">2</td><td>队列积压 >30 分钟 → 员工加开验位(闸不跳过)</td></tr>
+<tr><td class="role">席位层</td><td>1 席同时只跑 1 个回合</td><td class="mono">串行</td><td class="mono">串行</td><td class="bad">平台派发是抢占式的:同席连派会打断在飞回合(已实测)→ 同席待办 ≤3,超了拆新席</td></tr>
+<tr><td class="role">平台层</td><td>全场活跃席 + 模型配额</td><td class="mono">活跃席 ≤7</td><td class="mono">≤10(免费额度)</td><td>超额排队;单 lane 配额:R4×6 / GLM×3 / STEP×3 / NEX×3 / 外包×1</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>二、并发冲突怎么处理(对照表)</h2>
+<table>
+<tr><th style="width:150px">冲突类型</th><th style="width:230px">典型场景</th><th>处置(全部自动)</th></tr>
+<tr><td class="role">同卡争抢</td><td>两个员工同时领同一张卡</td><td>claim 原子锁:先到者领到(attempts+1),后到者锁定失败 → 回队列等下一拍,不中断先到者</td></tr>
+<tr><td class="role">同文件并发写</td><td>两单同时改同一产物</td><td>文件锁 + 原子写(临时文件+改名);冲突写 → 后者拿锁失败排队;同秒备份自动留</td></tr>
+<tr><td class="role">版本冲突</td><td>子需求 A/B 各改一版</td><td>版本冻结 + 发布闸串行合并:先过质检的版本为准,后到者 rebase 到该版本上重验</td></tr>
+<tr><td class="role">资源冲突</td><td>额度/模型池打架</td><td>预算闸:超配额任务排队或降级模型;长批处理让给夜间免费档</td></tr>
+<tr><td class="role">平台抢占</td><td class="bad">同席多派发 → 在飞回合被打断</td><td class="bad">串行纪律:同席待办≤3;重要长令放心跳空窗(如 30min 心跳的 29 分钟窗口);被打断的回合视为断点,重投续做</td></tr>
+<tr><td class="role">重复执行</td><td>重试导致同一节点做两次</td><td>节点幂等:按 MD 卡"提交"指针判重;第二次只做校核不覆盖</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>三、调度算法(每拍派工的判定顺序)</h2>
+<div class="flowrow">
+<div class="fs"><div class="t">① 优先级</div><div class="d">P0 急单 → P1 常规 → P2 缓办;同级先到先派</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="fs"><div class="t">② 依赖检查</div><div class="d">依赖未完成不派;依赖失败 → 重规划(replan)</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="fs"><div class="t">③ WIP 闸</div><div class="d">任一并发层到上限 → 该单排队,派做别的</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="fs"><div class="t">④ 退避与公平</div><div class="d">重试指数退避(上限 3 次);同优先级轮转,不饿死任何 lane</div></div>
+</div>
+<div class="sub" style="margin-top:10px">观测(WIP 大盘):在制数 / 各层占用 / 队列深度 / 阻塞数 / 平均等待时长 —— 看板实时显示,效率分析每 6h 出并发利用率与瓶颈 Top3。</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>四、日班 / 夜班怎么安排</h2>
+<div class="sub">席位常驻不换人,换的是"班次配置":节拍、并发上限、任务类型、发布策略。夜班 23:00–09:00 吃免费额度(夜间 3 亿 token),把重活批处理全部压到夜里。</div>
+<div class="shifts">
+<div class="sh"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>日班 08:00 – 23:00</div>
+<ul>
+<li>模型:主力高质量模型;侧重需求确认、方案/审计、重要生产、最终交付</li>
+<li>心跳:厂长 30min / 策划 10min / 审计·安全 5min(基准节拍)</li>
+<li>并发:订单 ≤3;活跃席 ≤7;生产 9 执行位</li>
+<li>发布:白天走发布闸,允许终审放行</li>
+<li>人工零接触:除交付单外不出现在你面前</li>
+</ul></div>
+<div class="sh night"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>夜班 23:00 – 09:00</div>
+<ul>
+<li>额度:夜间免费档(智谱 23:00–09:00 3 亿 token),重活批处理专场</li>
+<li>任务类型:长文/批量测试/扫描清洗/经验整理/文档对账/次日方案预研——不收高风险新需求</li>
+<li>心跳:基准节拍 + 夜班巡检 10min 一条(防静默)</li>
+<li>并发:订单 ≤5(免费额度充裕),活跃席 ≤10;单席待办仍 ≤3</li>
+<li class="bad">发布冻结:夜班只入"发布候选",不批准对外发布(白天终审)</li>
+</ul></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12a3 3 0 0 0 3 3h9"/><path d="M18 15l3 3-3 3"/></svg>五、交接班规矩(22:50 / 08:50)</h2>
+<table>
+<tr><th style="width:120px">时点</th><th style="width:150px">动作</th><th>交班单内容(≤10 行)</th></tr>
+<tr><td class="mono">22:50</td><td>日班→夜班</td><td>在制清单(单号/卡点)、未闭合驳回、挂起原因、额度余量、夜班重活排程(按免费额度分配)、发布候选清单</td></tr>
+<tr><td class="mono">08:50</td><td>夜班→日班</td><td>夜班产出清单、批处理结果、夜间告警与处置记录、发布候选待终审、当日产能预判</td></tr>
+<tr><td class="mono">交班确认</td><td>接班组 5 分钟内</td><td>逐项打勾确认;有疑项当场挂"交接争议"小单,不带着疑问开工</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>六、实测教训(已入纪律)</h2>
+<table>
+<tr><th style="width:210px">教训</th><th>纪律</th></tr>
+<tr><td class="bad">平台对同一会话的派发是抢占式</td><td>连续投递会打断在飞回合(19:50 实测)→ 同席串行,待办≤3,长令放心跳空窗</td></tr>
+<tr><td class="bad">闹钟被停用/模式被改 → 派发即卡</td><td>verify_keepalive 每分钟四查一拨(mode/enabled/target/next),target 已死的遗留只隔离不复活</td></tr>
+<tr><td class="bad">旧席归档后心跳指向死席</td><td>席位重建后闹钟自动改指新席;交接单必查 target 存活</td></tr>
+</table>
+</div>
+
+<div class="foot">并发:四层 WIP 上限 + 冲突对照 + 派工四步 · 班次:席位常驻换配置,夜班吃免费额度出重活,发布夜间冻结</div>
+</div>
+</body></html>

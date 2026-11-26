@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工厂流程 · 一页看懂(简版)</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;
+--acc:#4a6fa5;--accbg:#eef3f9;--bad:#c0575c;--ok:#47875c;--warnbg:#fbf6ec;--warn:#b58a3f}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1240px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{font-size:12px;color:var(--mut);text-align:right}
+.head a{color:var(--acc);text-decoration:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-top:16px}
+.panel h2{font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{color:var(--acc)}
+.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:16px}
+/* 主线 */
+.line{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+.step{flex:1;min-width:118px;background:var(--accbg);border:1px solid #cddcee;border-radius:10px;padding:12px 10px;text-align:center;position:relative}
+.step .no{font-family:Consolas,monospace;font-size:12px;color:var(--acc)}
+.step .who{font-size:15px;color:var(--ink);margin:2px 0}
+.step .do{font-size:12.5px;color:var(--sub);line-height:1.5}
+.step.me{background:#fff;border-color:var(--line)}
+.arrow{align-self:center;color:var(--dis);flex:none}
+/* 分叉 */
+.branch{display:flex;justify-content:center;margin:6px 0}
+.barrow{display:flex;flex-direction:column;align-items:center;color:var(--bad)}
+.barrow .lab{font-size:13px;color:var(--bad);background:#fbf2f2;border:1px solid #e6c9cb;border-radius:999px;padding:2px 12px;margin:4px 0}
+/* 预案横排 */
+.plan{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.pstep{flex:1;min-width:130px;background:#fbf2f2;border:1px solid #e6c9cb;border-radius:10px;padding:12px 10px;text-align:center}
+.pstep .no{font-family:Consolas,monospace;font-size:12px;color:var(--bad)}
+.pstep .t{font-size:15px;color:var(--ink);margin:2px 0}
+.pstep .d{font-size:12.5px;color:var(--sub);line-height:1.5}
+.pstep.safe{background:var(--warnbg);border-color:#e6d9c2}
+.pstep.safe .no{color:var(--warn)}
+/* 特例 */
+.specials{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.spec{background:#fff;border:1px dashed var(--line);border-radius:8px;padding:12px 14px}
+.spec .t{font-size:14px;color:var(--bad);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.spec .d{font-size:13px;color:var(--sub)}
+/* 安全部 */
+.safe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sc{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.sc .t{font-size:14px;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.sc .t svg{color:var(--acc)}
+.sc .d{font-size:13px;color:var(--sub)}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+@media (max-width:1000px){.specials,.safe-grid{grid-template-columns:1fr}}
+</style></head><body>
+<div class="shell">
+
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>工厂流程 · 一页看懂</h1>
+<div class="meta">正常走直线 · 出问题才分叉 · 分叉处理完回主线<br><a href="/flow">详细版 →</a> · <a href="/architecture">架构总览 →</a></div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>一、正常流程(从你提需求到交付)</h2>
+<div class="sub">一条直线,八步走完。每一步谁做、做什么,一句话。</div>
+<div class="line">
+<div class="step me"><div class="no">01</div><div class="who">你</div><div class="do">提需求</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">02</div><div class="who">厂长</div><div class="do">拆任务、定验收标准、排期<br>全部自动,不问你(高低风险都一样)</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">03</div><div class="who">策划</div><div class="do">出计划、出方案</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">04</div><div class="who">审计</div><div class="do">审方案行不行<br>不行就打回策划</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">05</div><div class="who">生产</div><div class="do">照着通过的方案干活</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">06</div><div class="who">质检</div><div class="do">照验收标准一条条验<br>不过就打回生产</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step"><div class="no">07</div><div class="who">厂长</div><div class="do">发布前最后检查一遍<br>(五项条件都过才放行)</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="step me"><div class="no">08</div><div class="who">厂长 → 你</div><div class="do">交最终交付单<br>你:接受 / 退回</div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>二、出问题时的分叉(预案)</h2>
+<div class="sub">正常是直线;一旦出问题(审计驳回 / 质检不过 / 卡住超时 / 乱耗额度 / 违规),就从这里分叉下去,处理完回主线继续——坏的那一件停下,其他照跑。</div>
+<div class="branch">
+<div class="barrow">
+<span class="lab">发生问题 → 走预案</span>
+<svg width="16" height="40" viewBox="0 0 16 40" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 0v32M3 27l5 6 5-6"/></svg>
+</div>
+</div>
+<div class="plan">
+<div class="pstep"><div class="no">P1</div><div class="t">立刻上报</div><div class="d">发现的人第一时间报<br>不自己硬扛</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="pstep"><div class="no">P2</div><div class="t">隔离问题点</div><div class="d">只停出问题的那一件子任务<br>父订单和其他子任务照跑</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="pstep"><div class="no">P3</div><div class="t">重派 / 替补</div><div class="d">换个执行者再来一次<br>或启用备用方案</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="pstep"><div class="no">P4</div><div class="t">恢复确认</div><div class="d">确认问题真的好了<br>才放回主线</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="pstep safe"><div class="no">P5</div><div class="t">记账 + 复盘</div><div class="d">全程秒级留痕<br>教训写进经验库,下次少踩</div></div>
+</div>
+<div class="specials">
+<div class="spec"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>重试太多次也不行</div><div class="d">同一件事重试超过上限 → 升级到厂长裁处,不允许无限循环。</div></div>
+<div class="spec"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>不可逆风险:不问你,自动隔离</div><div class="d">数据被破坏 / 越权 / 对外发布风险 → 该项自动搁置不硬做,其余照跑,结论写进交付单供你事后核对。</div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>三、安全部门(运营保障部)到底在干嘛</h2>
+<div class="sub">它不是生产、不判产品好坏;它是"监工 + 消防队"。</div>
+<div class="safe-grid">
+<div class="sc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>盯全程</div><div class="d">实时盯:谁没动静了、谁卡住了、谁空转磨时间、谁乱花额度、谁积压——发现就打小黄灯(报组长/经理),严重的打红灯(报厂长)。</div></div>
+<div class="sc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>只掐坏的,护着好的</div><div class="d">执行上面的预案 P2-P4:隔离出问题的那一件、重派替补、确认恢复;不改产品结论,不耽误其他任务。</div></div>
+<div class="sc"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>每 6 小时算一次账</div><div class="d">每天 4 次效率分析:瓶颈 Top3、驳回 Top3、最多 3 条改善项;下午那次给完整日报给你看。</div></div>
+</div>
+</div>
+
+<div class="foot">简版流程图 · 正常直线 · 出问题分叉走预案 · 分叉完回主线</div>
+</div>
+</body></html>

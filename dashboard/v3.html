@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MES 面板 v3 · 框架</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2016%2016%27%3E%3Crect%20width%3D%2716%27%20height%3D%2716%27%20fill%3D%27%23b45309%27%2F%3E%3C%2Fsvg%3E">
+<style>
+/* C-20261122-G26 · MES 面板 v3 框架层：单文件零外部依赖，仅呈现层。
+   数据位全部占位，本单不取数（框架层）；设计令牌严格取 UISPEC v1.1 白名单。 */
+:root{
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g900:#0f172a;
+  --white:#ffffff;--red:#dc2626;--amber:#d97706;--amber-d:#b45309;--blue:#2563eb;--green:#16a34a;
+  --r-card:16px;--r-ctl:8px;--r-chip:999px;
+  --sp1:4px;--sp2:8px;--sp3:12px;--sp4:16px;--sp5:24px;--sp6:32px;
+  --sh:0 1px 2px rgba(15,23,42,.05);--ease:cubic-bezier(0.2,0,0,1);
+  --font-ui:system-ui,"Segoe UI","Microsoft YaHei",sans-serif;
+  --font-num:"Barlow","Segoe UI",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;background:var(--g50);color:var(--g900);font-family:var(--font-ui);font-size:14px;line-height:1.5;overflow-x:hidden}
+h1,h2,h3,p{margin:0}
+button,input,textarea{font-family:inherit;font-size:14px;color:inherit}
+button{cursor:pointer}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.shell{max-width:720px;margin:0 auto;padding:0 var(--sp5)}
+.ic{width:16px;height:16px;flex:none}
+/* ---------- 顶栏 ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:var(--g50)}
+.tb{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2);height:56px}
+.brand{display:flex;align-items:center;gap:var(--sp2);font-size:16px;font-weight:600;color:var(--g900)}
+.brand .mk{width:20px;height:20px;color:var(--amber-d)}
+.tb-r{display:flex;align-items:center;gap:var(--sp2)}
+.icon-btn{position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:transparent;border:0;border-radius:var(--r-chip);color:var(--g600);transition:background 150ms var(--ease)}
+.icon-btn:hover{background:var(--g100)}
+.icon-btn .ic{width:20px;height:20px}
+.badge-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:var(--r-chip);background:var(--red)}
+.user{display:flex;align-items:center;gap:var(--sp1);height:32px;padding:0 var(--sp3);background:var(--g100);border:0;border-radius:var(--r-chip);color:var(--g900);font-weight:400;transition:background 150ms var(--ease)}
+.user:hover{background:var(--g200)}
+.user .ic{width:16px;height:16px;color:var(--g600)}
+/* ---------- 标签导航 ---------- */
+.tabs{position:sticky;top:56px;z-index:19;background:var(--g50);padding-bottom:var(--sp2)}
+.tabwrap{position:relative;display:flex;gap:var(--sp1);padding:var(--sp1);background:var(--g100);border-radius:var(--r-chip)}
+.tab{flex:1 1 0;min-width:0;height:40px;padding:0 var(--sp2);background:transparent;border:0;border-radius:var(--r-chip);color:var(--g600);font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background 150ms var(--ease),color 150ms var(--ease)}
+.tab:hover{color:var(--g900)}
+.tab.on{background:var(--white);color:var(--g900);font-weight:600}
+.ind{position:absolute;left:0;bottom:4px;width:24px;height:2px;border-radius:var(--r-chip);background:var(--amber);transition:transform 240ms var(--ease)}
+/* ---------- 主体与卡片 ---------- */
+.main{padding-top:var(--sp4);padding-bottom:var(--sp6)}
+.page{display:block}
+.page[hidden]{display:none}
+.stack{display:flex;flex-direction:column;gap:var(--sp4)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+.card{min-width:0;padding:var(--sp4);background:var(--white);border-radius:var(--r-card);box-shadow:var(--sh)}
+.c-head{display:flex;align-items:center;gap:var(--sp2);margin-bottom:var(--sp3)}
+.c-icon{width:16px;height:16px;flex:none;color:var(--g500)}
+.c-title{min-width:0;font-size:14px;font-weight:600;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-sub{margin-left:auto;font-size:12px;font-weight:400;color:var(--g500);white-space:nowrap}
+.c-foot{margin-top:var(--sp3);font-size:12px;color:var(--g500)}
+.hello{font-size:16px;font-weight:600;color:var(--g900)}
+.note{margin-top:var(--sp1);display:flex;align-items:center;gap:var(--sp2);font-size:12px;color:var(--g600)}
+.dot{width:8px;height:8px;flex:none;border-radius:var(--r-chip);background:var(--g300)}
+.d-green{background:var(--green)}.d-amber{background:var(--amber)}.d-red{background:var(--red)}.d-blue{background:var(--blue)}
+.num{margin-top:var(--sp2);font-family:var(--font-num);font-size:32px;font-weight:400;line-height:1;letter-spacing:0;color:var(--g900)}
+.num.ph{color:var(--g600)}
+.unit{margin-top:var(--sp1);font-size:12px;color:var(--g500)}
+.seg{display:flex;gap:var(--sp1);margin-left:auto}
+.seg button{height:28px;padding:0 var(--sp3);background:transparent;border:0;border-radius:var(--r-chip);color:var(--g600);font-size:12px;transition:background 150ms var(--ease),color 150ms var(--ease)}
+.seg button:hover{background:var(--g100)}
+.seg button.on{background:var(--g200);color:var(--g900);font-weight:600}
+.seg.inhead{margin-left:0;flex-wrap:wrap}
+.row.gap-top{margin-top:var(--sp3)}
+.field.first{margin-top:0}
+.chartbox{margin-top:var(--sp1)}
+.chart{display:block;width:100%;height:auto}
+.ax{font-family:var(--font-ui);font-size:12px;font-weight:400;fill:var(--g500)}
+.row{display:flex;align-items:center;gap:var(--sp2);min-height:40px;padding:var(--sp2) var(--sp3);margin-bottom:var(--sp2);background:var(--g50);border-radius:var(--r-ctl)}
+.row:last-child{margin-bottom:0}
+.r-main{flex:1 1 auto;min-width:0;font-size:14px;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-sub{font-size:12px;color:var(--g500);white-space:nowrap}
+.chip{flex:none;height:24px;padding:0 var(--sp2);background:var(--g100);border-radius:var(--r-chip);color:var(--g600);font-size:12px;font-weight:400;line-height:24px;white-space:nowrap}
+.empty{padding:var(--sp5);background:var(--g50);border-radius:var(--r-ctl);color:var(--g500);font-size:12px;text-align:center}
+/* ---------- 下单表单 ---------- */
+.types{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp2)}
+.type{display:flex;flex-direction:column;align-items:flex-start;gap:var(--sp1);min-height:64px;padding:var(--sp3);background:var(--g50);border:0;border-radius:var(--r-ctl);text-align:left;transition:background 150ms var(--ease)}
+.type:hover{background:var(--g100)}
+.type.on{background:var(--g200)}
+.type .t{font-size:14px;font-weight:600;color:var(--g900)}
+.type .s{font-size:12px;color:var(--g600)}
+.field{margin-top:var(--sp3)}
+.flabel{display:block;margin-bottom:var(--sp1);font-size:12px;color:var(--g500)}
+.input,.area{display:block;width:100%;padding:0 var(--sp3);background:var(--g50);border:0;border-radius:var(--r-ctl);color:var(--g900);font-size:14px}
+.input{height:40px}
+.area{min-height:96px;padding-top:var(--sp2);padding-bottom:var(--sp2);line-height:1.5;resize:vertical}
+.input::placeholder,.area::placeholder{color:var(--g500)}
+.pri{display:flex;flex-wrap:wrap;gap:var(--sp2)}
+.pri button{height:32px;padding:0 var(--sp3);background:var(--g50);border:0;border-radius:var(--r-chip);color:var(--g600);font-size:12px;transition:background 150ms var(--ease),color 150ms var(--ease)}
+.pri button:hover{background:var(--g100)}
+.pri button.on{background:var(--g200);color:var(--g900);font-weight:600}
+.actions{display:flex;flex-direction:column;gap:var(--sp2);margin-top:var(--sp4)}
+.btn{height:40px;border:0;border-radius:var(--r-ctl);font-size:14px;font-weight:600;transition:background 150ms var(--ease)}
+.btn-p{background:var(--amber-d);color:var(--white)}
+.btn-p:hover{background:var(--g900)}
+.btn-p:active{transform:scale(0.98)}
+.btn-g{background:var(--g100);color:var(--g600);font-weight:400}
+.btn-g:hover{background:var(--g200)}
+.notice{margin-top:var(--sp3);padding:var(--sp3);background:var(--g50);border-radius:var(--r-ctl);color:var(--g600);font-size:12px}
+/* ---------- 无障碍与动效 ---------- */
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.page.on .card{animation:enter 240ms var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+/* ---------- 断点 ---------- */
+@media (max-width:1199px){
+  .shell{padding:0 var(--sp4)}
+}
+@media (max-width:767px){
+  .tb{height:44px}
+  .tabs{top:44px}
+  .card{padding:var(--sp3)}
+  .main{padding-top:var(--sp3);padding-bottom:var(--sp5)}
+  .stack{gap:var(--sp3)}
+  .grid2{gap:var(--sp2)}
+  .seg{margin-left:0}
+  .c-head{flex-wrap:wrap}
+  .c-sub{margin-left:0}
+  .pri button{height:40px}
+}
+</style>
+</head>
+<body data-ready="1">
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-mark" viewBox="0 0 20 20"><path d="M4 15V5l6 6.5 6-6.5v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 16 16"><path d="M8 2.2a4 4 0 0 0-4 4v3l-1.2 2.4h10.4L12 9.2v-3a4 4 0 0 0-4-4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6.6 13.2a1.5 1.5 0 0 0 2.8 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M4 6.5l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 16 16"><path d="M2.5 12a5.5 5.5 0 1 1 11 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 8.6l3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 16 16"><path d="M1.5 8.5h2.2l1.6-4 2.4 7 1.8-4.4h2.6l1.4 2.4h1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6v6.8M6.2 6.4h3.2M6.2 9.6h3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 2.4h5l3 3v8.2H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 2.6v3h3M6 8.6h4M6 11h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3.4v9.2M3.4 8h9.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-pool" viewBox="0 0 16 16"><path d="M2.4 5.4h11.2M2.4 10.6h11.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="5.4" cy="5.4" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="10.6" cy="10.6" r="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-split" viewBox="0 0 16 16"><path d="M2.6 8h3.2M8.4 4.4h4.8M8.4 11.6h4.8M5.8 8l2.6-3.6M5.8 8l2.6 3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="topbar">
+  <div class="shell tb">
+    <span class="brand"><svg class="mk" aria-hidden="true"><use href="#i-mark"/></svg>MES 面板</span>
+    <div class="tb-r">
+      <button class="icon-btn" type="button" aria-label="通知">
+        <svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>
+        <span class="badge-dot" aria-hidden="true"></span>
+      </button>
+      <button class="user" type="button">厂长<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="主导航">
+  <div class="shell">
+    <div class="tabwrap" role="tablist">
+      <span class="ind" aria-hidden="true"></span>
+      <button class="tab on" type="button" role="tab" aria-selected="true" data-page="overview">概览</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-page="orders">订单</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-page="new">下单</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-page="channel">通道</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-page="cost">成本</button>
+    </div>
+  </div>
+</nav>
+
+<main class="shell main">
+
+  <!-- ================= 概览 ================= -->
+  <div class="page on" id="p-overview">
+    <div class="stack">
+
+      <section class="card" id="z1" data-zone="1">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-bell"/></svg>
+          <h2 class="c-title">欢迎区</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <p class="hello">上午好，厂长</p>
+        <p class="note"><span class="dot d-green" aria-hidden="true"></span>流水线在线 · 数据未接线</p>
+      </section>
+
+      <section class="grid2" id="z2" data-zone="2">
+        <article class="card">
+          <div class="c-head">
+            <svg class="c-icon" aria-hidden="true"><use href="#i-gauge"/></svg>
+            <h2 class="c-title">在制</h2>
+          </div>
+          <p class="num ph">—</p>
+          <p class="unit">工单</p>
+        </article>
+        <article class="card">
+          <div class="c-head">
+            <svg class="c-icon" aria-hidden="true"><use href="#i-doc"/></svg>
+            <h2 class="c-title">队列</h2>
+          </div>
+          <p class="num ph">—</p>
+          <p class="unit">待派</p>
+        </article>
+      </section>
+
+      <section class="card" id="z4" data-zone="4">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-coin"/></svg>
+          <h2 class="c-title">今日成本</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <p class="num ph">¥ —</p>
+        <p class="unit">当日累计</p>
+      </section>
+
+      <section class="card" id="z5" data-zone="5">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-wave"/></svg>
+          <h2 class="c-title">最近事件</h2>
+          <div class="seg" role="group" aria-label="事件区间">
+            <button type="button" class="on" aria-pressed="true">1D</button>
+            <button type="button" aria-pressed="false">7D</button>
+            <button type="button" aria-pressed="false">1M</button>
+          </div>
+        </div>
+        <div class="row"><span class="dot d-blue" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span></div>
+        <div class="row"><span class="dot d-green" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span></div>
+        <div class="row"><span class="dot d-amber" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span></div>
+        <p class="c-foot">事件流待接线，本单不接取数</p>
+      </section>
+
+      <section class="card" id="z3" data-zone="3">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-wave"/></svg>
+          <h2 class="c-title">Token 用量</h2>
+          <div class="seg" role="group" aria-label="用量区间">
+            <button type="button" class="on" aria-pressed="true">1D</button>
+            <button type="button" aria-pressed="false">7D</button>
+            <button type="button" aria-pressed="false">1M</button>
+          </div>
+        </div>
+        <div class="chartbox">
+          <svg class="chart" viewBox="0 0 320 132" role="img" aria-label="Token 用量图表占位">
+            <g stroke="#e2e8f0" stroke-width="1">
+              <line x1="0" y1="8" x2="320" y2="8"/>
+              <line x1="0" y1="44" x2="320" y2="44"/>
+              <line x1="0" y1="80" x2="320" y2="80"/>
+              <line x1="0" y1="116" x2="320" y2="116"/>
+            </g>
+            <text class="ax" x="0" y="130">—</text>
+            <text class="ax" x="304" y="130">—</text>
+          </svg>
+        </div>
+        <p class="c-foot">用量接口待接线，图表区为骨架</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= 订单 ================= -->
+  <div class="page" id="p-orders" hidden>
+    <div class="stack">
+
+      <section class="card" id="z6" data-zone="6">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-doc"/></svg>
+          <h2 class="c-title">订单列表</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="seg inhead" role="group" aria-label="订单筛选">
+          <button type="button" class="on" aria-pressed="true">全部</button>
+          <button type="button" aria-pressed="false">在制</button>
+          <button type="button" aria-pressed="false">排队</button>
+          <button type="button" aria-pressed="false">完成</button>
+          <button type="button" aria-pressed="false">挂起</button>
+        </div>
+        <div class="row gap-top"><span class="dot d-blue" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span><span class="chip">在制</span></div>
+        <div class="row"><span class="dot d-amber" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span><span class="chip">排队</span></div>
+        <div class="row"><span class="dot d-green" aria-hidden="true"></span><span class="r-main">—</span><span class="r-sub">占位</span><span class="chip">完成</span></div>
+        <p class="c-foot">订单接口待接线，行骨架与状态胶囊为框架</p>
+      </section>
+
+      <section class="card" id="z7" data-zone="7">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-split"/></svg>
+          <h2 class="c-title">订单详情</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="empty">选中订单后在此展示详情骨架</div>
+        <p class="c-foot">详情字段待接线</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= 下单 ================= -->
+  <div class="page" id="p-new" hidden>
+    <div class="stack">
+
+      <section class="card" id="z8" data-zone="8">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-plus"/></svg>
+          <h2 class="c-title">新建订单</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <form id="orderForm" novalidate>
+          <div class="field first">
+            <span class="flabel">订单类型</span>
+            <div class="types" role="group" aria-label="订单类型">
+              <button class="type on" type="button" aria-pressed="true"><span class="t">面板 / 前端</span><span class="s">布局与交互</span></button>
+              <button class="type" type="button" aria-pressed="false"><span class="t">内容 / 文案</span><span class="s">文本与校对</span></button>
+              <button class="type" type="button" aria-pressed="false"><span class="t">代码 / 修复</span><span class="s">缺陷与改造</span></button>
+              <button class="type" type="button" aria-pressed="false"><span class="t">CAD / 图纸</span><span class="s">图形与标注</span></button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="flabel" for="t">标题</label>
+            <input class="input" id="t" type="text" placeholder="一句话说明要做什么" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="flabel" for="d">需求说明与验收标准</label>
+            <textarea class="area" id="d" placeholder="现状、目标、验收口径"></textarea>
+          </div>
+          <div class="field">
+            <span class="flabel">优先级</span>
+            <div class="pri" role="group" aria-label="优先级">
+              <button type="button" class="on" aria-pressed="true">普通</button>
+              <button type="button" aria-pressed="false">加急</button>
+              <button type="button" aria-pressed="false">紧急让道</button>
+              <button type="button" aria-pressed="false">夜班专用</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-p" type="submit">提交到工厂队列</button>
+            <button class="btn btn-g" type="button" id="draftBtn">存草稿</button>
+          </div>
+          <p class="notice" id="notice" hidden>框架稿：后端接线后提交工厂队列</p>
+        </form>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= 通道 ================= -->
+  <div class="page" id="p-channel" hidden>
+    <div class="stack">
+
+      <section class="card" id="z9" data-zone="9">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-pool"/></svg>
+          <h2 class="c-title">通道池</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="row"><span class="dot d-green" aria-hidden="true"></span><span class="r-main">通道一</span><span class="chip">可用</span></div>
+        <div class="row"><span class="dot d-amber" aria-hidden="true"></span><span class="r-main">通道二</span><span class="chip">冷却</span></div>
+        <div class="row"><span class="dot d-blue" aria-hidden="true"></span><span class="r-main">通道三</span><span class="chip">回落</span></div>
+        <p class="c-foot">通道三态为框架占位，容量待接线</p>
+      </section>
+
+      <section class="card" id="z10" data-zone="10">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-wave"/></svg>
+          <h2 class="c-title">通道健康</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="chartbox">
+          <svg class="chart" viewBox="0 0 320 132" role="img" aria-label="通道健康图表占位">
+            <g stroke="#e2e8f0" stroke-width="1">
+              <line x1="0" y1="8" x2="320" y2="8"/>
+              <line x1="0" y1="44" x2="320" y2="44"/>
+              <line x1="0" y1="80" x2="320" y2="80"/>
+              <line x1="0" y1="116" x2="320" y2="116"/>
+            </g>
+            <text class="ax" x="0" y="130">—</text>
+            <text class="ax" x="304" y="130">—</text>
+          </svg>
+        </div>
+        <p class="c-foot">健康接口待接线</p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= 成本 ================= -->
+  <div class="page" id="p-cost" hidden>
+    <div class="stack">
+
+      <section class="grid2" id="z11" data-zone="11">
+        <article class="card">
+          <div class="c-head">
+            <svg class="c-icon" aria-hidden="true"><use href="#i-coin"/></svg>
+            <h2 class="c-title">今日</h2>
+          </div>
+          <p class="num ph">¥ —</p>
+          <p class="unit">累计支出</p>
+        </article>
+        <article class="card">
+          <div class="c-head">
+            <svg class="c-icon" aria-hidden="true"><use href="#i-coin"/></svg>
+            <h2 class="c-title">本月</h2>
+          </div>
+          <p class="num ph">¥ —</p>
+          <p class="unit">自然月</p>
+        </article>
+      </section>
+
+      <section class="card" id="z12" data-zone="12">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-wave"/></svg>
+          <h2 class="c-title">成本走势</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="chartbox">
+          <svg class="chart" viewBox="0 0 320 132" role="img" aria-label="成本走势图表占位">
+            <g stroke="#e2e8f0" stroke-width="1">
+              <line x1="0" y1="8" x2="320" y2="8"/>
+              <line x1="0" y1="44" x2="320" y2="44"/>
+              <line x1="0" y1="80" x2="320" y2="80"/>
+              <line x1="0" y1="116" x2="320" y2="116"/>
+            </g>
+            <text class="ax" x="0" y="130">—</text>
+            <text class="ax" x="304" y="130">—</text>
+          </svg>
+        </div>
+        <p class="c-foot">成本接口待接线</p>
+      </section>
+
+      <section class="card" id="z13" data-zone="13">
+        <div class="c-head">
+          <svg class="c-icon" aria-hidden="true"><use href="#i-split"/></svg>
+          <h2 class="c-title">按通道拆分</h2>
+          <span class="c-sub">框架占位</span>
+        </div>
+        <div class="row"><span class="r-main">通道一</span><span class="r-sub">—</span></div>
+        <div class="row"><span class="r-main">通道二</span><span class="r-sub">—</span></div>
+        <div class="row"><span class="r-main">通道三</span><span class="r-sub">—</span></div>
+        <p class="c-foot">拆分口径待接线</p>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* 仅呈现层：标签切换、分段/类型/优先级选中态、提交提示。零取数、零 enqueue。 */
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll('.tab'));
+  var ind = document.querySelector('.ind');
+  var pages = { overview: 'p-overview', orders: 'p-orders', 'new': 'p-new', channel: 'p-channel', cost: 'p-cost' };
+
+  function place(tab) {
+    if (!ind || !tab) return;
+    var x = tab.offsetLeft + tab.offsetWidth / 2 - 12;
+    ind.style.transform = 'translateX(' + x + 'px)';
+  }
+
+  function go(key) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-page') === key;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    Object.keys(pages).forEach(function (k) {
+      var el = document.getElementById(pages[k]);
+      if (el) el.hidden = k !== key;
+    });
+    var active = document.getElementById(pages[key]);
+    if (active) {
+      active.classList.remove('on');
+      void active.offsetWidth;
+      active.classList.add('on');
+    }
+    place(tabs.filter(function (t) { return t.getAttribute('data-page') === key; })[0]);
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { go(t.getAttribute('data-page')); });
+  });
+
+  document.querySelectorAll('.seg').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      [].slice.call(g.children).forEach(function (x) {
+        if (x.tagName === 'BUTTON') {
+          x.classList.toggle('on', x === b);
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        }
+      });
+    });
+  });
+
+  document.querySelectorAll('.types, .pri').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      [].slice.call(g.children).forEach(function (x) {
+        if (x.tagName === 'BUTTON') {
+          x.classList.toggle('on', x === b);
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        }
+      });
+    });
+  });
+
+  var form = document.getElementById('orderForm');
+  var notice = document.getElementById('notice');
+  if (form && notice) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      notice.hidden = false;
+      notice.textContent = '框架稿：后端接线后提交工厂队列';
+    });
+  }
+  var draft = document.getElementById('draftBtn');
+  if (draft && notice) {
+    draft.addEventListener('click', function () {
+      notice.hidden = false;
+      notice.textContent = '框架稿：草稿存储待接线';
+    });
+  }
+
+  window.addEventListener('resize', function () {
+    place(document.querySelector('.tab.on'));
+  });
+
+  go('overview');
+})();
+</script>
+</body>
+</html>

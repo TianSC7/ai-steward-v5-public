@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MES · AI 工厂控制台 v3（框架稿）</title>
+<style>
+:root{
+  --bg:#FAFAFA; --card:#FFFFFF; --line:#E5E5E5;
+  --ink:#1A1A1A; --sub:#6B7280; --faint:#9CA3AF;
+  --brand:#EA580C; --brand-ink:#C2410C; --brand-soft:#FFF3EB;
+  --ok:#16A34A; --warn:#D97706; --bad:#DC2626;
+  --radius:16px; --radius-s:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 56px}
+
+/* ===== 顶栏 ===== */
+header{position:sticky;top:0;z-index:20;background:rgba(250,250,250,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.bar{max-width:720px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.logo{font-size:20px;font-weight:800;letter-spacing:.5px}
+.logo b{color:var(--brand-ink)}
+.logo em{font-style:normal;color:var(--brand)}
+.spacer{flex:1}
+.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--sub);position:relative;cursor:pointer}
+.dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--bad);border:1.5px solid var(--card)}
+.chip-user{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;
+  font-size:13px;color:var(--sub);display:flex;gap:6px;align-items:center;cursor:pointer}
+
+/* ===== 标签导航 ===== */
+nav{position:sticky;top:63px;z-index:19;background:rgba(250,250,250,.92);backdrop-filter:blur(8px)}
+.tabs{max-width:720px;margin:0 auto;padding:10px 16px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;padding:8px 16px;border-radius:999px;font-size:14px;color:var(--sub);cursor:pointer;
+  border:1px solid transparent;transition:.18s;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tab.on{background:#F1EFEC;color:var(--ink);font-weight:600;border-color:var(--line)}
+.tab.on::after{content:"";position:absolute}
+.tabline{max-width:720px;margin:0 auto;padding:0 16px}
+.tabline i{display:block;height:3px;width:34px;border-radius:2px;background:var(--brand);margin-top:7px;
+  transition:.25s cubic-bezier(.4,0,.2,1)}
+
+/* ===== 通用卡片 ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.card h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card .hint{font-size:12px;color:var(--faint);margin-top:2px}
+.row{display:flex;gap:12px}
+.row .card{flex:1}
+.kpi{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:8px}
+.kpi small{font-size:13px;font-weight:500;color:var(--faint);letter-spacing:0}
+.tag{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--brand-soft);color:var(--brand-ink);font-weight:600}
+.tag.g{background:#EAF7EF;color:var(--ok)} .tag.y{background:#FDF3E3;color:var(--warn)} .tag.r{background:#FDEBEB;color:var(--bad)}
+.draft{float:right;font-size:10px;color:var(--faint);border:1px dashed var(--line);padding:1px 7px;border-radius:6px}
+
+/* ===== 骨架屏 ===== */
+.sk{background:linear-gradient(90deg,#EFEFEF 25%,#F7F7F7 45%,#EFEFEF 65%);background-size:200% 100%;
+  animation:shine 1.4s infinite;border-radius:8px}
+@keyframes shine{0%{background-position:180% 0}100%{background-position:-80% 0}}
+.sk.t{height:12px;width:38%} .sk.t2{height:12px;width:64%}
+.sk.big{height:64px;width:100%;margin-top:12px}
+.sk.li{height:13px;width:100%;margin-top:12px}
+.sk.avatar{width:44px;height:44px;border-radius:50%;flex:none}
+.sk.chart{height:140px;width:100%;margin-top:14px;border-radius:12px}
+
+/* ===== 分段切换 ===== */
+.seg{display:flex;gap:4px;font-size:12px;color:var(--faint)}
+.seg span{padding:4px 10px;cursor:pointer;border-radius:8px}
+.seg span.on{color:var(--ink);font-weight:700;box-shadow:inset 0 -2px 0 var(--brand)}
+
+/* ===== 列表骨架（订单/通道） ===== */
+.li{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #F3F3F3}
+.li:last-child{border-bottom:none}
+.li .sk{margin-top:0}
+.status{width:8px;height:8px;border-radius:50%;flex:none}
+.status.g{background:var(--ok)} .status.y{background:var(--warn)} .status.r{background:var(--bad)} .status.f{background:var(--faint)}
+
+/* ===== 下单表单框架 ===== */
+.form label{display:block;font-size:13px;font-weight:600;margin:16px 0 6px}
+.form label em{font-style:normal;color:var(--faint);font-weight:400;font-size:12px}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:12px 14px;font-size:15px;font-family:inherit;background:var(--bg);color:var(--faint)}
+textarea{min-height:88px;resize:vertical}
+.kinds{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kind{border:1px solid var(--line);border-radius:var(--radius-s);padding:12px;text-align:center;
+  font-size:13px;cursor:pointer;color:var(--sub);background:var(--card);transition:.15s}
+.kind.on{border-color:var(--brand);color:var(--brand-ink);background:var(--brand-soft);font-weight:600}
+.btn{display:block;width:100%;margin-top:20px;padding:14px;border:none;border-radius:14px;
+  background:var(--brand);color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--card);color:var(--sub);border:1px solid var(--line);font-weight:500;margin-top:10px}
+
+/* ===== 页脚 ===== */
+footer{margin-top:26px;text-align:center;font-size:11px;color:var(--faint);line-height:1.9}
+.page{display:none}.page.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(min-width:640px){.kinds{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+
+<header><div class="bar">
+  <div class="logo">MES<b>·</b><em>AI 工厂</em></div>
+  <div class="spacer"></div>
+  <div class="icon-btn">🔔<span class="dot"></span></div>
+  <div class="chip-user">厂长 ▾</div>
+</div></header>
+
+<nav>
+  <div class="tabs" id="tabs">
+    <div class="tab on" data-p="p1">📋 概览</div>
+    <div class="tab" data-p="p2">📦 订单</div>
+    <div class="tab" data-p="p3">✏️ 下单</div>
+    <div class="tab" data-p="p4">🛣 通道</div>
+    <div class="tab" data-p="p5">💰 成本</div>
+  </div>
+  <div class="tabline"><i id="tl"></i></div>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ 概览 ============ -->
+<section class="page on" id="p1">
+  <div style="margin-top:18px">
+    <div style="font-size:21px;font-weight:800">欢迎回来，厂长</div>
+    <div style="color:var(--sub);font-size:13px;margin-top:2px">工厂实时状态一览 <span class="tag g">● 流水线在线</span></div>
+  </div>
+
+  <div class="row" style="margin-top:4px">
+    <div class="card"><span class="draft">框架占位</span><h3>在制</h3><div class="kpi">— <small>单</small></div><div class="hint">当前施工中的订单</div></div>
+    <div class="card"><span class="draft">框架占位</span><h3>队列</h3><div class="kpi">— <small>单</small></div><div class="hint">排队待施工</div></div>
+  </div>
+
+  <div class="card"><span class="draft">框架占位</span>
+    <h3>今日成本 <span class="tag">数据后填</span></h3>
+    <div class="kpi">¥ — <small>/ 日配额 ¥ —</small></div>
+    <div class="sk li" style="width:70%"></div>
+    <div class="sk big"></div>
+  </div>
+
+  <div class="card"><span class="draft">框架占位</span>
+    <h3 style="justify-content:space-between">最近事件 <span class="seg"><span>1D</span><span class="on">7D</span><span>1M</span></span></h3>
+    <div class="li"><span class="status g"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div></div>
+    <div class="li"><span class="status y"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div></div>
+    <div class="li"><span class="status f"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div></div>
+  </div>
+
+  <div class="card"><span class="draft">框架占位</span>
+    <h3 style="justify-content:space-between">Token 用量 <span class="seg"><span>1D</span><span class="on">7D</span><span>1M</span></span></h3>
+    <div class="sk chart"></div>
+  </div>
+</section>
+
+<!-- ============ 订单 ============ -->
+<section class="page" id="p2">
+  <div class="card" style="margin-top:16px"><span class="draft">框架占位</span>
+    <h3 style="justify-content:space-between">订单列表 <span class="seg"><span class="on">全部</span><span>在制</span><span>排队</span><span>完成</span><span>挂起</span></span></h3>
+    <div class="li"><span class="status g"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag">在制</span></div>
+    <div class="li"><span class="status y"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag y">排队</span></div>
+    <div class="li"><span class="status r"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag r">挂起</span></div>
+    <div class="li"><span class="status f"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag g">完成</span></div>
+  </div>
+  <div class="card"><span class="draft">框架占位</span><h3>订单详情（点击列表展开）</h3><div class="sk big"></div><div class="sk li"></div><div class="sk li" style="width:80%"></div></div>
+</section>
+
+<!-- ============ 下单 ============ -->
+<section class="page" id="p3">
+  <div class="card form" style="margin-top:16px"><span class="draft">框架占位 · 后端接线后填</span>
+    <h3>新订单</h3>
+    <label>订单类型 <em>（框架示意，可换）</em></label>
+    <div class="kinds">
+      <div class="kind on">🖥 面板/前端</div>
+      <div class="kind">📄 内容/文案</div>
+      <div class="kind">⚙️ 代码/修复</div>
+      <div class="kind">📐 CAD/图纸</div>
+    </div>
+    <label>标题 <em>一句话说清要什么</em></label>
+    <input type="text" placeholder="例：看板订单分区失明修复（R3）…" readonly>
+    <label>需求说明 / 验收标准</label>
+    <textarea placeholder="写清做什么、改哪里、怎么算合格…" readonly></textarea>
+    <label>优先级</label>
+    <div class="kinds">
+      <div class="kind on">🟢 普通</div>
+      <div class="kind">🟡 加急</div>
+      <div class="kind">🔴 紧急让道</div>
+      <div class="kind">🌙 夜班专用</div>
+    </div>
+    <button class="btn" onclick="alert('框架稿：后端接线后此处提交到工厂队列\n（下单 = 调 factory_runner enqueue）')">提交订单</button>
+    <button class="btn ghost">存为草稿</button>
+  </div>
+</section>
+
+<!-- ============ 通道 ============ -->
+<section class="page" id="p4">
+  <div class="card" style="margin-top:16px"><span class="draft">框架占位</span>
+    <h3>模型通道池</h3>
+    <div class="li"><span class="status g"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag g">可用</span></div>
+    <div class="li"><span class="status y"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag y">冷却</span></div>
+    <div class="li"><span class="status f"></span><div style="flex:1"><div class="sk t"></div><div class="sk t2" style="margin-top:6px"></div></div><span class="tag">回落</span></div>
+  </div>
+  <div class="card"><span class="draft">框架占位</span><h3>通道健康（回落/超时趋势）</h3><div class="sk chart"></div></div>
+</section>
+
+<!-- ============ 成本 ============ -->
+<section class="page" id="p5">
+  <div class="row" style="margin-top:16px">
+    <div class="card"><span class="draft">框架占位</span><h3>今日</h3><div class="kpi">¥ —</div><div class="hint">单均 ¥ —</div></div>
+    <div class="card"><span class="draft">框架占位</span><h3>本月</h3><div class="kpi">¥ —</div><div class="hint">配额 ¥ —</div></div>
+  </div>
+  <div class="card"><span class="draft">框架占位</span><h3>成本走势</h3><div class="sk chart"></div></div>
+  <div class="card"><span class="draft">框架占位</span><h3>按通道拆分</h3><div class="sk li"></div><div class="sk li" style="width:85%"></div><div class="sk li" style="width:70%"></div></div>
+</section>
+
+<footer>
+  ⚠️ 工程师手工参考稿（需求示意，非工厂交付）· 2026-11-22<br>
+  正式版由工厂流水线自产 → <a href="/v3.html?k=zc-REPLACE_WITH_YOUR_BOARD_KEY" style="color:var(--brand-ink)">/v3.html</a>（施工中）<br>
+  布局/导航/下单表单为实体，数据全部后填 · 风格参考：移动优先单列 SaaS
+</footer>
+</div>
+
+<script>
+const tabs=[...document.querySelectorAll('.tab')],tl=document.getElementById('tl');
+tabs.forEach((t,i)=>t.onclick=()=>{
+  tabs.forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById(t.dataset.p).classList.add('on');
+  tl.style.transform=`translateX(${i*76}px)`;tl.style.marginLeft=`${i*4}px`;
+});
+document.querySelectorAll('.kind').forEach(k=>k.onclick=()=>{
+  const s=[...k.parentElement.children];s.forEach(x=>x.classList.remove('on'));k.classList.add('on');});
+document.querySelectorAll('.seg').forEach(s=>s.querySelectorAll('span').forEach((sp,i)=>sp.onclick=()=>{
+  s.querySelectorAll('span').forEach(x=>x.classList.remove('on'));sp.classList.add('on');}));
+</script>
+</body>
+</html>

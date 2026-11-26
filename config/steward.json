@@ -1,0 +1,90 @@
+{
+  "stale_sec": 1800,
+  "dispatch": {
+    "max_running": 6,
+    "max_running_per_project": 2,
+    "stale_sec": 1800,
+    "max_attempts": 3,
+    "max_pulls": 3,
+    "daily_budget_cny": 0,
+    "idle_alert_sec": 7200,
+    "queue_empty_policy": "report",
+    "work_start": "08:00",
+    "work_end": "20:00",
+    "check_main_repo": true,
+    "require_exit_marker": true,
+    "workspace_map": {
+      "ai-steward": "C:/Users/Administrator/Documents/mate/plugins/ai-steward",
+      "mate": "C:/Users/Administrator/Documents/mate"
+    },
+    "project_map": {
+      "ai-steward": "CDN",
+      "mate": "CDN",
+      "cdn": "CDN"
+    },
+    "worktree": {
+      "enabled": true,
+      "root": "C:/Users/Administrator/worktrees/ai-steward",
+      "branch_prefix": "wt/",
+      "links": [
+        "frontend/node_modules",
+        "node_modules",
+        ".ai-sessions"
+      ],
+      "repos": {
+        "mate": "C:/Users/Administrator/Documents/mate/lib"
+      }
+    }
+  },
+  "autoallow": {
+    "workspace_fallback": true,
+    "roots": [
+      "C:/Users/Administrator/Documents/mate",
+      "C:/Users/Administrator/worktrees"
+    ],
+    "protected_paths": [
+      "C:/Users/Administrator/.ssh",
+      "C:/Users/Administrator/.zcode/v2/provider_config.json",
+      "C:/Users/Administrator/.zcode/v2/tasks-index.sqlite",
+      "C:/Users/Administrator/.zcode/cli/config.json",
+      "C:/Users/Administrator/.zcode/cli/db/db.sqlite",
+      "C:/Users/Administrator/.claude/settings.json",
+      "C:/Windows"
+    ]
+  },
+  "projects": [],
+  "dispatch_guard": {
+    "rule": "派单前核对 ZCode 项目的 workspacePath；命中禁区的项目不得派单，只报告。",
+    "blocked_paths": [
+      {
+        "path": "D:/Github",
+        "reason": "历史目录，非现行正本区"
+      }
+    ],
+    "canonical": []
+  },
+  "v4": {
+    "slots": {
+      "enabled": true,
+      "max": 6
+    },
+    "merge_gate": true,
+    "wallclock_live": true,
+    "char_icon_hard_fail": true,
+    "uispec_prompt": true,
+    "drop_details_gate": true,
+    "fuse_dry_run_until": "2026-11-23 13:05:36",
+    "order_wallclock_sec": 5400,
+    "assertion_gate": true,
+    "require_assertions": true,
+    "closeout_gate": true,
+    "probe_regex_fix": "observe",
+    "lint_gate": true,
+    "rewrite_authorized_orders": [
+      "C-P3-E"
+    ]
+  },
+  "v3_runner": {
+    "max_concurrent": 1
+  }
+}

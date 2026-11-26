@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工厂深度流程流转图 · MES 泳道图</title>
+<style>
+:root{--bg:#f5f5f5;--card:#ffffff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;
+--acc:#4a6fa5;--accbg:#eef3f9;--bad:#c0575c;--ok:#47875c}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1560px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{color:var(--mut);font-size:12px;text-align:right}
+.head a{color:var(--acc);text-decoration:none;font-size:12px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-top:16px;overflow-x:auto}
+.panel h2{font-size:15px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.panel h2 svg{color:var(--acc)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--sub);margin-top:10px}
+.legend .li{display:flex;align-items:center;gap:6px}
+.lg{width:26px;height:0;border-top:2px solid #8c8c8c}
+.lg.red{border-top:2px dashed #c0575c}
+.lg.dot{border-top:2px dotted #4a6fa5}
+.lg.blue{border-top:2px solid #4a6fa5}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{height:32px;text-align:left;color:var(--mut);border-bottom:1px solid var(--line);font-weight:400}
+td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--sub);vertical-align:top}
+td.mono{font-family:Consolas,monospace;color:var(--ink);white-space:nowrap}
+.bad{color:var(--bad)}.ok{color:var(--ok)}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+</style></head><body>
+<div class="shell">
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>工厂深度流程流转图</h1>
+<div class="meta">MES 泳道图 · 一需求一工单 · 秒级留痕 · 异常不停线<br><a href="/architecture">查看架构总览 →</a></div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>主流程泳道图(实线=主流程 · 红虚线=驳回/异常 · 蓝点线=稽查与留痕)</h2>
+<svg width="1480" height="1180" viewBox="0 0 1480 1180" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans,sans-serif">
+<defs>
+<marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#8c8c8c"/></marker>
+<marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#c0575c"/></marker>
+<marker id="ab" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#4a6fa5"/></marker>
+</defs>
+<!-- lanes -->
+<g>
+<rect x="0" y="20" width="1480" height="140" fill="#fbfcfd"/><line x1="0" y1="160" x2="1480" y2="160" stroke="#e5e6eb"/>
+<rect x="0" y="160" width="1480" height="140" fill="#ffffff"/><line x1="0" y1="300" x2="1480" y2="300" stroke="#e5e6eb"/>
+<rect x="0" y="300" width="1480" height="140" fill="#fbfcfd"/><line x1="0" y1="440" x2="1480" y2="440" stroke="#e5e6eb"/>
+<rect x="0" y="440" width="1480" height="140" fill="#ffffff"/><line x1="0" y1="580" x2="1480" y2="580" stroke="#e5e6eb"/>
+<rect x="0" y="580" width="1480" height="140" fill="#fbfcfd"/><line x1="0" y1="720" x2="1480" y2="720" stroke="#e5e6eb"/>
+<rect x="0" y="720" width="1480" height="140" fill="#ffffff"/><line x1="0" y1="860" x2="1480" y2="860" stroke="#e5e6eb"/>
+<rect x="0" y="860" width="1480" height="140" fill="#fbfcfd"/><line x1="0" y1="1000" x2="1480" y2="1000" stroke="#e5e6eb"/>
+<rect x="0" y="1000" width="1480" height="140" fill="#ffffff"/><line x1="0" y1="1140" x2="1480" y2="1140" stroke="#e5e6eb"/>
+</g>
+<!-- lane labels -->
+<g font-size="13" fill="#595959">
+<text x="18" y="86">你</text><text x="18" y="226">厂长</text><text x="18" y="366">策划部</text><text x="18" y="506">审计部</text>
+<text x="18" y="646">生产部</text><text x="18" y="786">质检部</text><text x="18" y="926">运营保障部</text><text x="18" y="1066">台账·系统</text>
+</g>
+<!-- nodes -->
+<g font-size="12" text-anchor="middle">
+<!-- L1 -->
+<g><rect x="150" y="63" width="120" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="210" y="86" fill="#1f1f1f">提需求</text><text x="210" y="103" fill="#767676">发起人</text></g>
+<g><rect x="600" y="63" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="675" y="86" fill="#1f1f1f">全部自动确认</text><text x="675" y="103" fill="#767676">不询问发起人</text></g>
+<g><rect x="1290" y="63" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="1365" y="86" fill="#1f1f1f">验收结论</text><text x="1365" y="103" fill="#767676">接受/有条件/退回</text></g>
+<!-- L2 -->
+<g><rect x="330" y="203" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="405" y="226" fill="#1f1f1f">需求契约 · 8 要素</text><text x="405" y="243" fill="#767676">子需求/验收/不做/风险/预算/截止</text></g>
+<g><polygon points="570,196 626,230 570,264 514,230" fill="#ffffff" stroke="#4a6fa5" stroke-width="1.4"/><text x="570" y="227" fill="#1f1f1f">风险评级</text><text x="570" y="242" fill="#767676">低/中/高</text></g>
+<g><polygon points="1120,196 1176,230 1120,264 1064,230" fill="#ffffff" stroke="#4a6fa5" stroke-width="1.4"/><text x="1120" y="223" fill="#1f1f1f">发布闸</text><text x="1120" y="238" fill="#767676">5 硬条件全满足?</text></g>
+<g><rect x="1230" y="203" width="140" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="1300" y="226" fill="#1f1f1f">最终交付单</text><text x="1300" y="243" fill="#767676">厂长汇总 · 唯一口</text></g>
+<!-- L3 -->
+<g><rect x="330" y="343" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="405" y="366" fill="#1f1f1f">滚动排产</text><text x="405" y="383" fill="#767676">当前1h/短期5h/长期12h</text></g>
+<g><rect x="560" y="343" width="140" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="630" y="366" fill="#1f1f1f">子需求方案</text><text x="630" y="383" fill="#767676">按验收标准编制</text></g>
+<g><rect x="1240" y="343" width="150" height="54" rx="6" fill="#fbf2f2" stroke="#e6c9cb"/><text x="1315" y="366" fill="#c0575c">补偿池</text><text x="1315" y="383" fill="#767676">待补偿·不阻塞发布</text></g>
+<!-- L4 -->
+<g><polygon points="830,476 886,510 830,544 774,510" fill="#ffffff" stroke="#4a6fa5" stroke-width="1.4"/><text x="830" y="505" fill="#1f1f1f">方案审</text><text x="830" y="520" fill="#767676">独立闸</text></g>
+<g><rect x="1240" y="483" width="150" height="54" rx="6" fill="#fbf2f2" stroke="#e6c9cb"/><text x="1315" y="506" fill="#c0575c">超限升级</text><text x="1315" y="523" fill="#767676">重试超限 → 厂长</text></g>
+<!-- L5 -->
+<g><rect x="900" y="623" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="975" y="646" fill="#1f1f1f">按方案产出</text><text x="975" y="663" fill="#767676">3 组 × 3 员工</text></g>
+<!-- L6 -->
+<g><polygon points="1120,756 1176,790 1120,824 1064,790" fill="#ffffff" stroke="#4a6fa5" stroke-width="1.4"/><text x="1120" y="785" fill="#1f1f1f">逐条验收</text><text x="1120" y="800" fill="#767676">独立闸</text></g>
+<!-- L7 -->
+<g><rect x="380" y="903" width="170" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="465" y="926" fill="#1f1f1f">稽查 · 实时监控</text><text x="465" y="943" fill="#767676">心跳/空转/额度/WIP/冲突</text></g>
+<g><rect x="610" y="903" width="180" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="700" y="926" fill="#1f1f1f">异常处置闭环</text><text x="700" y="943" fill="#767676">隔离→重派→恢复→记录→复盘</text></g>
+<g><rect x="870" y="903" width="170" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="955" y="926" fill="#1f1f1f">效率分析 · 6h 四批</text><text x="955" y="943" fill="#767676">第4批日报+改善项</text></g>
+<!-- L8 -->
+<g><rect x="300" y="1043" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="375" y="1066" fill="#1f1f1f">MD 流转卡</text><text x="375" y="1083" fill="#767676">节点秒级·只追加</text></g>
+<g><rect x="540" y="1043" width="150" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="615" y="1066" fill="#1f1f1f">字段表 · 看板</text><text x="615" y="1083" fill="#767676">统计/日报数据源</text></g>
+<g><rect x="780" y="1043" width="170" height="54" rx="6" fill="#eef3f9" stroke="#cddcee"/><text x="865" y="1066" fill="#1f1f1f">记忆库 · 四层</text><text x="865" y="1083" fill="#767676">事实/经验/规则/改善</text></g>
+</g>
+<!-- main edges -->
+<g fill="none" stroke="#8c8c8c" stroke-width="1.4">
+<path d="M210,117 L210,145 L405,145 L405,203" marker-end="url(#a)"/>
+<path d="M480,230 L514,230" marker-end="url(#a)"/>
+<path d="M570,264 L570,285 L405,285 L405,343" marker-end="url(#a)"/>
+<path d="M570,196 L570,175 L675,175 L675,117" marker-end="url(#a)"/>
+<path d="M750,90 L790,90 L790,320 L630,320 L630,343" marker-end="url(#a)"/>
+<path d="M480,370 L560,370" marker-end="url(#a)"/>
+<path d="M700,370 L745,370 L745,510 L774,510" marker-end="url(#a)"/>
+<path d="M886,510 L975,510 L975,623" marker-end="url(#a)"/>
+<path d="M1050,650 L1090,650 L1090,756 L1090,756" marker-end="url(#a)"/>
+<path d="M1090,650 L1120,650 L1120,756" marker-end="url(#a)"/>
+<path d="M1176,790 L1210,790 L1210,230 L1176,230" marker-end="url(#a)"/>
+<path d="M1176,230 L1230,230" marker-end="url(#a)"/>
+<path d="M1365,203 L1365,117" marker-end="url(#a)"/>
+<path d="M550,930 L610,930" marker-end="url(#a)"/>
+<path d="M615,1097 L540,1097" marker-end="url(#a)"/>
+<path d="M955,957 L955,1000 L865,1000 L865,1043" marker-end="url(#a)"/>
+</g>
+<!-- reject/exception (red dashed) -->
+<g fill="none" stroke="#c0575c" stroke-width="1.4" stroke-dasharray="6 4">
+<path d="M830,544 L830,562 L630,562 L630,397" marker-end="url(#ar)"/>
+<path d="M1075,815 L1000,815 L1000,677" marker-end="url(#ar)"/>
+<path d="M1176,806 L1315,806 L1315,537" marker-end="url(#ar)"/>
+<path d="M1120,264 L1120,310 L1315,310 L1315,343" marker-end="url(#ar)"/>
+<path d="M630,562 L630,575 L1315,575 L1315,537" marker-end="url(#ar)"/>
+</g>
+<!-- monitor/audit (blue dotted) -->
+<g fill="none" stroke="#4a6fa5" stroke-width="1.2" stroke-dasharray="2 4" opacity="0.85">
+<path d="M380,930 L120,930 L120,230 L330,230" marker-end="url(#ab)"/>
+<path d="M830,544 L830,580 L1190,580 L1190,540" marker-end="url(#ab)"/>
+<path d="M1064,790 L1040,790 L1040,930 L870,930" marker-end="url(#ab)"/>
+</g>
+<!-- trace bus (blue dotted, y=985) -->
+<g fill="none" stroke="#4a6fa5" stroke-width="1.2" stroke-dasharray="2 4" opacity="0.85">
+<path d="M585,397 L585,985" />
+<path d="M830,560 L830,985" />
+<path d="M1060,677 L1060,985" />
+<path d="M1120,824 L1120,985" />
+<path d="M250,985 L1150,985" />
+<path d="M375,985 L375,1043" marker-end="url(#ab)"/>
+<path d="M490,985 L490,1043" marker-end="url(#ab)"/>
+<path d="M865,985 L865,1043" marker-end="url(#ab)"/>
+</g>
+</svg>
+<div class="legend">
+<div class="li"><span class="lg"></span>主流程(实线)</div>
+<div class="li"><span class="lg red"></span>驳回/异常回路(红虚线)</div>
+<div class="li"><span class="lg blue"></span>关键连线:稽查监控 / 秒级留痕汇入台账</div>
+<div class="li"><span class="lg dot"></span>虚线总线=全节点留痕(进入/分配/开始/提交/离开/驳回/恢复/发布)</div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>节点时刻表(谁做 · 判定 · 留痕)</h2>
+<table>
+<tr><th style="width:150px">节点</th><th style="width:110px">主责</th><th>输入 → 输出</th><th style="width:210px">判定/闸门</th><th style="width:180px">留痕点(秒级)</th></tr>
+<tr><td>N1 提需求</td><td>你</td><td>需求描述 → 厂长受理</td><td>—</td><td class="mono">进入·受理</td></tr>
+<tr><td>N2 需求契约</td><td>厂长</td><td>需求 → 8 要素契约(子需求/验收/不做/风险/预算/截止/WIP/路由)</td><td>全部自动确认,不询问发起人</td><td class="mono">契约签署·路由分配</td></tr>
+<tr><td>N3 滚动排产</td><td>策划</td><td>子需求 → 小时计划板(当前1h锁定/短期5h滚动/长期12h预判)</td><td>厂长批当前计划;阻断异常才可改</td><td class="mono">计划发布·派工</td></tr>
+<tr><td>N4 子需求方案</td><td>策划</td><td>契约 → 方案(覆盖验收标准)</td><td>—</td><td class="mono">提交方案</td></tr>
+<tr><td>N5 方案审</td><td>审计(独立闸)</td><td>方案 → 通过/驳回</td><td class="bad">驳回 → 回策划(计入驳回次数)</td><td class="mono">审核结论·驳回理由</td></tr>
+<tr><td>N6 生产产出</td><td>生产(3组×3)</td><td>通过方案 → 交付物</td><td>—</td><td class="mono">开始·提交</td></tr>
+<tr><td>N7 逐条验收</td><td>质检(独立闸)</td><td>交付物 → 通过/不通过</td><td class="bad">不通过 → 回生产;重试超限 → 升级厂长</td><td class="mono">验收结论·返工</td></tr>
+<tr><td>N8 发布闸</td><td>厂长</td><td>—</td><td class="bad">5 硬条件:质检全过 + 审计无未闭合 + 稽查无阻断 + 版本冻结 + 回滚方案</td><td class="mono">闸门检查快照</td></tr>
+<tr><td>N9 最终交付单</td><td>厂长</td><td>— → 你验收</td><td>你:接受 / 有条件接受 / 退回</td><td class="mono">交付·验收结论</td></tr>
+<tr><td>G 稽查</td><td>运保·稽查组</td><td>全链路信号 → 告警/隔离/重派</td><td>黄灯→组长/经理;红灯→厂长+运保;阻断→升级你</td><td class="mono">告警·处置·恢复</td></tr>
+<tr><td>G3 效率分析</td><td>运保·效率组</td><td>6h 批处理 → 第4批日报 + ≤3 改善项</td><td>改善项须:责任人/截止/验证</td><td class="mono">批处理时间戳·改善闭环</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>异常路径清单(不停线)</h2>
+<table>
+<tr><th style="width:180px">触发</th><th>处置顺序</th><th style="width:230px">去向</th></tr>
+<tr><td class="bad">审计驳回</td><td>记录驳回理由 → 回策划修订 → 重提(计入驳回/返工次数)</td><td>策划 · 子需求方案</td></tr>
+<tr><td class="bad">质检不通过</td><td>回生产返工 → 重验;重试超限 → 升级厂长裁处</td><td>生产 / 厂长超限升级</td></tr>
+<tr><td class="bad">稽查红灯(空转/额度/挂起/WIP)</td><td>隔离异常点 → 重派或替补 → 恢复确认 → 记录违规 → 复盘</td><td>异常处置闭环 · 不阻塞父订单</td></tr>
+<tr><td class="bad">发布闸不满足</td><td>未通过子需求挂"待补偿" → 已通过部分照常分批发布</td><td>补偿池 · 发布候选</td></tr>
+<tr><td class="bad">不可逆风险</td><td class="bad">不询问发起人:该项自动搁置不硬做,其余照跑,结论写入交付单</td><td>交付单(事后核对)</td></tr>
+</table>
+</div>
+
+<div class="foot">深度流程流转图 · 单文件自包含 · 全 SVG · 与《架构总览》配套</div>
+</div>
+</body></html>

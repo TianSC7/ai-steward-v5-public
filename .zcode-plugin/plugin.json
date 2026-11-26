@@ -1,0 +1,15 @@
+{
+  "name": "ai-steward",
+  "displayName": "AI 大管家",
+  "displayName_i18n": { "en": "AI Steward", "zh-CN": "AI 大管家" },
+  "version": "0.2.1",
+  "description": "Butler for ZCode: parse your instruction into a task card, rewrite the prompt for the target model, dispatch to worker sessions, police their progress, and report only decisions that need you. Ships a local model gateway with auto routing and failover.",
+  "description_i18n": {
+    "en": "Butler for ZCode: dispatch, police and report on worker agent sessions; local auto-routing model gateway included.",
+    "zh-CN": "ZCode 大管家：接令→改写提示词→按任务挑模型→开窗口派单→巡检纠偏→只报要你拍板的事；含本地 Auto 聚合网关（自动路由+故障转移）。"
+  },
+  "author": { "name": "TIAN" },
+  "keywords": ["steward", "orchestrator", "session-management", "model-routing", "gateway", "zcode"],
+  "skills": "./skills",
+  "commands": "./commands"
+}

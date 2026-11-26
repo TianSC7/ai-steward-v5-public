@@ -1,0 +1,39 @@
+{
+  "_comment": "UISPEC 机读白名单（唯一审美数值源）。由《全厂-UISPEC设计系统规范.md》v1.1 生成；Builder 提示词、Gate1 阈值、ui.md Q6 均从此读取。改数值必须先改规范并经发起人批准、升版本号，再同步本文件。",
+  "uispec_version": "v1.1",
+  "generated_at": "2026-11-22",
+  "font_sizes_px": [12, 14, 16, 20, 32, 112],
+  "hero_font_size": {"A>=1600": "112px", "B 1200-1599": "96px", "C 768-1199": "72px", "D <768": "clamp(56px,18vw,88px)"},
+  "font_weights": [400, 500, 600],
+  "font_weight_notes": "大数字一律 400；500 仅限 32px 中数字档；标题/表头/按钮/nav 激活 600",
+  "semantic_colors": {
+    "red": ["#dc2626"],
+    "amber": ["#d97706", "#b45309"],
+    "blue": ["#2563eb"],
+    "green": ["#16a34a"]
+  },
+  "semantic_color_notes": "4 个语义色族、5 个色号；#b45309 为 amber 族深字变体，不计第 5 色",
+  "grays": ["#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1", "#94a3b8", "#64748b", "#475569", "#0f172a"],
+  "white": "#ffffff",
+  "z1_gradients": {
+    "green": "linear-gradient(90deg,#f4f9ff 0%,#f2fbf7 100%)",
+    "yellow": "linear-gradient(90deg,#fffaee 0%,#fdf3e6 100%)",
+    "red": "linear-gradient(90deg,#fff8f5 0%,#fdf0f0 100%)"
+  },
+  "radii_px": [0, 8, 16, 999],
+  "border_width_px": [0],
+  "border_exempt_selectors": ["#z1 .alist li"],
+  "shadow": "0 1px 2px rgba(15,23,42,.05)",
+  "durations_ms": [0, 150, 240, 400],
+  "ease": "cubic-bezier(0.2, 0, 0, 1)",
+  "spacing_px": [4, 8, 12, 16, 24, 32],
+  "spacing_exempt": {"B 档卡内边距": "14px"},
+  "svg_icon_px": [16, 20],
+  "button_heights_px": [28, 32, 40],
+  "breakpoints": {"A": ">=1600", "B": "1200-1599", "C": "768-1199", "D": "<768"},
+  "font_stacks": {
+    "num": "\"Barlow\", \"Segoe UI\", system-ui, sans-serif",
+    "ui": "system-ui, \"Segoe UI\", \"Microsoft YaHei\", sans-serif"
+  },
+  "banned": ["emoji", "char_icon(U+2460-24FF, U+2600-27BF)", "icon_font", "bitmap_icon", "new_font_file", "count_up_animation", "infinite_animation", "layout_animation", "multi_layer_shadow", "colored_border"]
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工厂预案手册 · 每个人每一种故障怎么处理</title>
+<style>
+:root{--bg:#f5f5f5;--card:#fff;--line:#e5e6eb;--line2:#f0f0f0;--ink:#1f1f1f;--sub:#595959;--mut:#767676;--dis:#8c8c8c;
+--acc:#4a6fa5;--accbg:#eef3f9;--bad:#c0575c;--ok:#47875c}
+*{box-sizing:border-box;margin:0;padding:0;font-weight:400}
+body{background:var(--bg);color:var(--ink);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",sans-serif;padding:20px}
+.shell{max-width:1380px;margin:0 auto}
+.head{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.head h1{font-size:18px;display:flex;align-items:center;gap:10px}
+.head h1 svg{color:var(--acc)}
+.head .meta{font-size:12px;color:var(--mut);text-align:right}
+.head a{color:var(--acc);text-decoration:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-top:16px;overflow-x:auto}
+.panel h2{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.panel h2 svg{color:var(--acc)}
+.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{height:32px;text-align:left;color:var(--mut);border-bottom:1px solid var(--line);font-weight:400;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line2);color:var(--sub);vertical-align:top}
+td.mono{font-family:Consolas,monospace;color:var(--ink);white-space:nowrap}
+td.role{color:var(--ink);white-space:nowrap}
+.bad{color:var(--bad)}.ok{color:var(--ok)}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:4px 0 6px}
+.lstep{flex:1;min-width:150px;background:var(--accbg);border:1px solid #cddcee;border-radius:8px;padding:10px 12px}
+.lstep .t{font-size:14px;color:var(--ink)}
+.lstep .d{font-size:12.5px;color:var(--sub);line-height:1.55}
+.lstep.final{background:#fbf2f2;border-color:#e6c9cb}
+.arrow{align-self:center;color:var(--dis)}
+.scenes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scene{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.scene .t{font-size:14px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.scene .t svg{color:var(--bad)}
+.scene ol{list-style:none}
+.scene li{font-size:12.5px;color:var(--sub);padding:3px 0 3px 46px;position:relative;line-height:1.55}
+.scene li .ts{position:absolute;left:0;font-family:Consolas,monospace;font-size:12px;color:var(--bad)}
+.foot{color:var(--dis);font-size:12px;margin-top:16px;text-align:center}
+@media (max-width:1000px){.scenes{grid-template-columns:1fr}}
+</style></head><body>
+<div class="shell">
+
+<div class="head">
+<h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>工厂预案手册 · 每个人每种故障怎么处理</h1>
+<div class="meta">不问你 · 自动侦测 · 自动替补 · 秒级留痕<br><a href="/simple">简版流程</a> · <a href="/flow">详细流程</a> · <a href="/architecture">架构</a></div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>一、怎么判定"出事了"(侦测判据,全部自动)</h2>
+<div class="sub">运保部稽查组 + 各级上级同时盯,判据写死,不靠人猜。</div>
+<table>
+<tr><th style="width:170px">判据</th><th style="width:110px">阈值</th><th>谁发现</th><th>立即动作</th></tr>
+<tr><td class="role">员工卡死</td><td class="mono">同一节点 15 分钟无"提交"</td><td>组长(盯进度表)+稽查组</td><td>查日志定位;判卡死的,走"员工预案"</td></tr>
+<tr><td class="role">员工离线</td><td class="mono">会话无响应 / 心跳缺失 30 秒</td><td>稽查组(秒级)</td><td>标记离线;重派同任务;走"员工预案"</td></tr>
+<tr><td class="role">员工空转</td><td class="mono">前台 sleep / 无产出空转 5 分钟</td><td>稽查组</td><td>中断空转;强制后台化;记违规一次</td></tr>
+<tr><td class="role">组长离线/卡死</td><td class="mono">心跳缺失 2 拍(20 分钟)</td><td>经理 + 稽查组</td><td>经理代管本组;走"组长预案"</td></tr>
+<tr><td class="role">经理离线/卡死</td><td class="mono">心跳缺失 2 拍(20 分钟)</td><td>厂长 + 稽查组</td><td>厂长代管该部门;启用备用经理席</td></tr>
+<tr><td class="role">厂长离线/卡死</td><td class="mono">心跳缺失 1 拍(30 分钟)</td><td>运保部经理(红灯)+稽查组</td><td>备用厂长席接手;走"厂长预案"</td></tr>
+<tr><td class="role">审计/质检占线</td><td class="mono">待审/待验收队列 >30 分钟未动</td><td>稽查组</td><td>本部门经理接力审/验(闸不跳过,只换人)</td></tr>
+<tr><td class="role">产出不合格</td><td class="mono">审计驳回 / 质检不过</td><td>审计 / 质检</td><td>打回上家(策划/生产),计驳回次数</td></tr>
+<tr><td class="role">额度耗尽</td><td class="mono">当日额度使用 >90%</td><td>稽查组</td><td>切备用模型;高耗任务排队延后;余量留给交付</td></tr>
+<tr><td class="role">平台级异常</td><td class="mono">心跳全停 / 会话丢失 / 库损坏</td><td>稽查组 + 运维</td><td>走"平台预案"(见第四节)</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>二、通用替补阶梯(任何岗位倒下,按这条链顶上)</h2>
+<div class="sub">原则:任务不等人——原人不行,下一级立刻顶上;永远回到主线继续,不问发起人。</div>
+<div class="ladder">
+<div class="lstep"><div class="t">第 1 步 · 重试本人</div><div class="d">重建会话 / 重投任务(断点续做);同一人最多 2 次。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep"><div class="t">第 2 步 · 同组替补</div><div class="d">员工挂 → 同组替补员工接(每组建制:组长+3 员工,剩 2 人轮值)。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep"><div class="t">第 3 步 · 上级顶上</div><div class="d">员工全挂 → 组长亲自做;组长挂 → 经理代管;经理挂 → 厂长代管部门。</div></div>
+<span class="arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+<div class="lstep final"><div class="t">第 4 步 · 备用席/降级</div><div class="d">厂长挂 → 预设备用厂长席接管;仍不可行 → 降级交付 + 补偿池,结论写交付单。</div></div>
+</div>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>三、逐人预案(每个岗位 × 每种故障的具体处置)</h2>
+<div class="sub">"谁发现 → 60 秒内做什么 → 替补从哪来 → 什么情况升级 → 留痕"。升级只在内部分级,不问发起人。</div>
+<table>
+<tr><th style="width:130px">岗位</th><th style="width:150px">故障</th><th>处置动作(按序)</th><th style="width:190px">替补来源</th><th style="width:150px">升级去向(内部)</th></tr>
+<tr><td class="role">厂长</td><td class="bad">离线/会话中断</td><td>①稽查组红灯;②备用厂长席立即接管(预建,MD 卡与队列原样挂接);③在制任务继续跑;④运保经理监督交接;⑤交付单注明"代管期间"</td><td>备用厂长席(常备)</td><td>—(最高)</td></tr>
+<tr><td class="role">厂长</td><td class="bad">判定卡住(两拍不推进)</td><td>①稽查组报红灯;②备用厂长席先批当前计划;③原厂长恢复后交接复核</td><td>备用厂长席</td><td>—</td></tr>
+<tr><td class="role">策划经理</td><td class="bad">离线</td><td>①厂长代管策划部;②启用备用经理席;③当前计划由计划组长维持滚动</td><td>计划组长 / 备用经理席</td><td>厂长</td></tr>
+<tr><td class="role">策划组长</td><td class="bad">离线/卡死</td><td>①经理代管本组;②组内任务分给员工继续;③计划板标"组务代管"</td><td>部门经理</td><td>策划经理</td></tr>
+<tr><td class="role">策划员工</td><td class="bad">卡死(15 分钟无提交)</td><td>①组长查日志;②重派同任务给本组替补员工;③仍不行组长亲自做;④记违规一次;⑤复盘写经验库</td><td>同组替补员工 → 组长</td><td>策划组长</td></tr>
+<tr><td class="role">审计经理</td><td class="bad">离线</td><td>①厂长代管审计部;②审核队列由组长接力;③独立闸不跳过,只换人</td><td>审计组长 / 备用经理席</td><td>厂长</td></tr>
+<tr><td class="role">审计组长</td><td class="bad">离线/卡死</td><td>①经理接力审;②积压超 30 分钟强制分单给审计员工</td><td>审计经理</td><td>审计经理</td></tr>
+<tr><td class="role">审计员工</td><td class="bad">卡死/离线</td><td>①组长接手该方案;②重派给其他审计员工;③驳回结论必须留理由与标准条款</td><td>审计同组 → 组长</td><td>审计组长</td></tr>
+<tr><td class="role">生产经理</td><td class="bad">离线</td><td>①厂长代管生产部;②三组组长各自维持组内产线;③关键卡由质检降级验</td><td>生产组长 / 备用经理席</td><td>厂长</td></tr>
+<tr><td class="role">生产组长</td><td class="bad">离线/卡死</td><td>①经理代管本组;②本组在制任务分给组内 3 员工均摊;③组内员工全忙 → 借调他组</td><td>生产经理 / 借调</td><td>生产经理</td></tr>
+<tr><td class="role">生产员工</td><td class="bad">卡死(节点 15 分钟无提交)</td><td>①组长查日志判"卡死";②任务原样重派同组替补员工(最多 3 次);③3 次失败 → 组长亲自做;④仍失败 → 经理顶上;⑤全程秒级留痕,复盘入经验库</td><td>同组替补 → 组长 → 经理</td><td>生产组长</td></tr>
+<tr><td class="role">生产员工</td><td class="bad">离线(会话丢失)</td><td>①稽查组 30 秒判离线;②同任务重派替补员工(断点续做,MD 卡带上下文);③原员工恢复后不重复做,只做校核</td><td>同组替补员工</td><td>生产组长</td></tr>
+<tr><td class="role">质检经理</td><td class="bad">离线</td><td>①厂长代管质检部;②验收队列由组长接力;③独立闸不跳过,只换人</td><td>质检组长 / 备用经理席</td><td>厂长</td></tr>
+<tr><td class="role">质检组长</td><td class="bad">离线/卡死</td><td>①经理接力验;②积压 >30 分钟分单给质检员工;③验收标准逐条打勾,不许整批过</td><td>质检经理</td><td>质检经理</td></tr>
+<tr><td class="role">质检员工</td><td class="bad">卡死/离线</td><td>①组长接手验收;②重派他人;③结论必须附条款编号与证据路径</td><td>质检同组 → 组长</td><td>质检组长</td></tr>
+<tr><td class="role">运保经理</td><td class="bad">离线</td><td>①厂长直接接管稽查;②稽查组自动按规则执行不等人;③效率分析批处理照常由脚本产出</td><td>稽查组长 / 厂长</td><td>厂长</td></tr>
+<tr><td class="role">稽查员工</td><td class="bad">离线</td><td>①稽查组长补位;②黄灯规则由脚本兜底(心跳缺失自动标黄);③恢复后回查离线期日志</td><td>稽查同组 → 组长</td><td>运保经理</td></tr>
+<tr><td class="role">效率分析组</td><td class="bad">批处理失败</td><td>①脚本自动重试 2 次;②仍失败 → 产出"部分日报"并标缺口;③次日第一批发补算</td><td>重跑脚本</td><td>运保经理</td></tr>
+<tr><td class="role">审计/质检闸</td><td class="bad">被压/被催放水</td><td>①独立闸结论不受部门经理干预;②稽查组查"非标准通过";③发现放水 → 该批验收作废重验,记违规</td><td>—</td><td>厂长</td></tr>
+</table>
+</div>
+
+<div class="panel">
+<h2><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>四、秒级剧本(三个真实场景怎么跑)</h2>
+<div class="scenes">
+<div class="scene"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>剧本 A:生产员工"卡死"</div>
+<ol>
+<li><span class="ts">T+0</span>员工 A 接到子任务,开始做(留痕"开始")</li>
+<li><span class="ts">T+15m</span>同一节点无"提交" → 组长进度表标黄 + 稽查组同步告警</li>
+<li><span class="ts">T+16m</span>组长查日志:会话无响应 → 判"卡死",任务标"重派中"</li>
+<li><span class="ts">T+18m</span>同任务重派给同组替补员工 B(带 MD 卡上下文,断点续做)</li>
+<li><span class="ts">T+45m</span>B 提交 → 质检照常;A 记违规 1 次,复盘写经验库(下次先查 A 的卡点类型)</li>
+<li><span class="ts">上限</span>若 B 也卡:重派 C(共 3 次)→ 组长亲自做 → 经理顶上;任何一档都不问发起人</li>
+</ol></div>
+<div class="scene"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"/></svg>剧本 B:经理/组长"离线"</div>
+<ol>
+<li><span class="ts">T+0</span>经理心跳缺失(两拍=20 分钟)→ 稽查组红灯报厂长</li>
+<li><span class="ts">T+1m</span>厂长宣布"代管该部门",启用备用经理席;组长照常领活</li>
+<li><span class="ts">T+5m</span>审核/生产/验收队列不动 → 组长接力分单,闸不跳过只换人</li>
+<li><span class="ts">T+恢复</span>原经理回来:交接复核,一分钟内确认"代管期结论有效"</li>
+<li><span class="ts">留痕</span>全程 MD 卡记"代管开始/结束",效率分析计一次"人力中断"</li>
+</ol></div>
+<div class="scene"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8h4v13M10 21V4h4v17M15 21v-9h4v9"/></svg>剧本 C:厂长"离线"(单点也要有预案)</div>
+<ol>
+<li><span class="ts">T+0</span>厂长心跳缺失一拍(30 分钟)→ 运保经理红灯 + 稽查组双确认</li>
+<li><span class="ts">T+1m</span>预建"备用厂长席"立即接管:接 MD 卡队列、批当前计划、发布闸照跑</li>
+<li><span class="ts">T+全场</span>在制任务不停;新需求进"待厂长复核"队列(只排队,不问发起人)</li>
+<li><span class="ts">T+恢复</span>原厂长回归 → 十分钟交接:复核代管期决策,接受的直接过,有疑的当场改判</li>
+<li><span class="ts">留痕</span>交付单注明"含代管期";效率分析出"单点中断"事件</li>
+</ol></div>
+<div class="scene"><div class="t"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>剧本 D:平台级故障(调度停摆/会话丢失/库损坏)</div>
+<ol>
+<li><span class="ts">T+0</span>全心跳停 → 稽查脚本判"平台级";自动跑健康检查(权限/占用/悬挂 run 六项)</li>
+<li><span class="ts">T+2m</span>按检查结果自愈:清死占用/悬挂 run;重启会话;必要时重启应用(令牌注入,不丢数据目录)</li>
+<li><span class="ts">T+5m</span>积压队列自动补跑(按原定顺序);断点从 MD 卡续做</li>
+<li><span class="ts">T+10m</span>出"中断复盘":停摆起止、影响单量、补偿项(≤3)入改善层</li>
+<li><span class="ts">兜底</span>库损坏 → 从每日备份恢复(最近一次备份点),丢的节点重跑,MD 卡不丢历史</li>
+</ol></div>
+</div>
+</div>
+
+<div class="foot">预案手册 · 侦测判据写死 · 替补阶梯固定 · 不问发起人 · 全部秒级留痕</div>
+</div>
+</body></html>

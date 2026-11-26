@@ -1,0 +1,81 @@
+{
+  "_comment": "V4.0-P2 规格断言模板库。规格书里写 {\"id\": \"A1\", \"template\": \"<名>\", \"params\": {...}}，显式字段（clause/desc/viewports/state/required…）覆盖模板。模板字符串里的 {参数} 由 params 填充，未给的取 defaults。改模板不影响已合入的基线（基线里存的是展开后的断言）。",
+  "version": 1,
+  "templates": {
+    "nav_height_shrink": {
+      "desc": "导航条视觉高度相对当前生产版至少收敛 {pct}%（keep 为保留比例）",
+      "defaults": {"selector": "#nav", "keep": "0.82", "pct": "18"},
+      "assertion": {"selector": "{selector}", "metric": "rect.height", "aggregate": "max", "op": "<=", "value": "baseline*{keep}", "tolerance": "0.5", "desc": "导航条高度较生产版降 ≥{pct}%"}
+    },
+    "max_height": {
+      "desc": "选中元素的最大高度不超过 {px}px（如表格行高 ≤56px）",
+      "defaults": {"px": "56"},
+      "assertion": {"selector": "{selector}", "metric": "rect.height", "aggregate": "max", "op": "<=", "value": "{px}", "desc": "{selector} 行高 ≤{px}px"}
+    },
+    "min_height": {
+      "desc": "选中元素的最小高度不低于 {px}px（如触控目标 ≥40px）",
+      "defaults": {"px": "40"},
+      "assertion": {"selector": "{selector}", "metric": "rect.height", "aggregate": "min", "op": ">=", "value": "{px}", "desc": "{selector} 高度 ≥{px}px"}
+    },
+    "ellipsis_on_truncate": {
+      "desc": "被截断的长句必须显示省略号（line-clamp 或 text-overflow:ellipsis）",
+      "defaults": {},
+      "assertion": {"selector": "{selector}", "metric": "text.ellipsis_ok", "aggregate": "all", "op": "==", "value": "true", "desc": "{selector} 截断处必有省略号"}
+    },
+    "nowrap_single_line": {
+      "desc": "单行字段不折行（高度不超过一行行高 × 1.6）",
+      "defaults": {"px": "28"},
+      "assertion": {"selector": "{selector}", "metric": "rect.height", "aggregate": "max", "op": "<=", "value": "{px}", "desc": "{selector} 单行不折行"}
+    },
+    "count_at_least": {
+      "desc": "可见元素个数 ≥ n",
+      "defaults": {"n": "1"},
+      "assertion": {"selector": "{selector}", "metric": "count", "op": ">=", "value": "{n}", "desc": "{selector} 至少 {n} 个"}
+    },
+    "count_equals_data": {
+      "desc": "可见元素个数 = 数据层某数组长度（如抽屉任务行数 = details[单号].tasks 长度）",
+      "defaults": {},
+      "assertion": {"selector": "{selector}", "metric": "count", "op": "==", "value": "data:{path}|len", "desc": "{selector} 行数 = {path} 长度"}
+    },
+    "first_text_contains": {
+      "desc": "首个可见元素文本包含指定内容",
+      "defaults": {},
+      "assertion": {"selector": "{selector}", "metric": "text", "aggregate": "first", "op": "contains", "value": "{text}", "desc": "{selector} 首行含「{text}」"}
+    },
+    "text_absent": {
+      "desc": "可见文本中不得出现某片段（如「[待办] —」空行）",
+      "defaults": {"selector": "body"},
+      "assertion": {"selector": "{selector}", "metric": "text", "aggregate": "all", "op": "not_contains", "value": "{text}", "desc": "{selector} 不含「{text}」"}
+    },
+    "text_matches_none": {
+      "desc": "可见文本不匹配某正则（如 emoji/字符图标）",
+      "defaults": {"selector": "body"},
+      "assertion": {"selector": "{selector}", "metric": "text", "aggregate": "all", "op": "not_matches", "value": "{regex}", "desc": "{selector} 不匹配 {regex}"}
+    },
+    "style_equals": {
+      "desc": "计算样式等于某值（数值类自动去 px）",
+      "defaults": {},
+      "assertion": {"selector": "{selector}", "metric": "style.{prop}", "aggregate": "all", "op": "==", "value": "{value}", "desc": "{selector} {prop} = {value}"}
+    },
+    "style_max": {
+      "desc": "计算样式数值不超过上限（如 padding-block ≤9px）",
+      "defaults": {},
+      "assertion": {"selector": "{selector}", "metric": "style.{prop}", "aggregate": "max", "op": "<=", "value": "{value}", "desc": "{selector} {prop} ≤ {value}"}
+    },
+    "no_horizontal_overflow": {
+      "desc": "整页零横向溢出（scrollWidth - clientWidth = 0）",
+      "defaults": {},
+      "assertion": {"metric": "doc.overflowX", "op": "<=", "value": "0", "desc": "整页零横向溢出"}
+    },
+    "zone_present": {
+      "desc": "第 N 区存在（DOM 中挂 data-zone 锚，不要求可见）",
+      "defaults": {},
+      "assertion": {"selector": "[data-zone=\"{n}\"]", "visible_only": false, "metric": "count", "op": ">=", "value": "1", "desc": "z{n} 锚点存在"}
+    },
+    "unchanged_vs_baseline": {
+      "desc": "某指标与当前生产版一致（冻结项零变化，如 z1 hero 高度）",
+      "defaults": {"metric": "rect.height", "tol": "0.5"},
+      "assertion": {"selector": "{selector}", "metric": "{metric}", "aggregate": "max", "op": "==", "value": "baseline", "tolerance": "{tol}", "desc": "{selector} {metric} 与生产版一致（冻结）"}
+    }
+  }
+}

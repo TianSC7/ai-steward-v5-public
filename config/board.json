@@ -1,0 +1,13 @@
+{
+  "_comment": "V4.0-P4 看板安全配置（2026-11-22）。listen_host 只许 127.0.0.1，对外走隧道；allowed_hosts 填隧道域名。改完需重启 board_server。详见 README_P4。",
+  "listen_host": "127.0.0.1",
+  "port": 8901,
+  "legacy_query_token": "loopback",
+  "session_ttl_hours": 168,
+  "enable_archive": false,
+  "allowed_hosts": [
+    "aa.tailxxxx.ts.net",
+    "mes.example.com"
+  ],
+  "cookie_secure": "always"
+}
